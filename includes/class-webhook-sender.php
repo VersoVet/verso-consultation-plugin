@@ -155,13 +155,20 @@ class Verso_Webhook_Sender {
             ];
         }
 
-        // Build OWNER info
-        $owner = [
-            'nom' => sanitize_text_field($request->get_param('owner_nom')),
-            'prenom' => sanitize_text_field($request->get_param('owner_prenom')),
-            'email' => sanitize_email($request->get_param('owner_email')),
-            'telephone' => sanitize_text_field($request->get_param('owner_telephone')),
-        ];
+        // Build OWNER info (only if submitter is owner)
+        $owner = null;
+        if ($submitter_type === 'owner') {
+            $owner_data = [
+                'nom' => sanitize_text_field($request->get_param('owner_nom')),
+                'prenom' => sanitize_text_field($request->get_param('owner_prenom')),
+                'email' => sanitize_email($request->get_param('owner_email')),
+                'telephone' => sanitize_text_field($request->get_param('owner_telephone')),
+            ];
+            $owner = array_filter($owner_data);
+            if (empty($owner)) {
+                $owner = null;
+            }
+        }
 
         // Build ANIMAL info
         $animal = [
@@ -178,7 +185,7 @@ class Verso_Webhook_Sender {
             'uuid' => $uuid,
             'submitter_type' => $submitter_type,
             'vet' => $vet,
-            'owner' => array_filter($owner),
+            'owner' => $owner,
             'animal' => array_filter($animal),
             'motif' => sanitize_textarea_field($request->get_param('motif')),
             'specialite' => sanitize_text_field($request->get_param('specialite')),
