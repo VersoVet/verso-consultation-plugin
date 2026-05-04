@@ -1,0 +1,24 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# WordPress
+wp-config-local.php
+wp-config.php
+local-config.php
+
+# Dependencies
+node_modules/
+composer.lock
+
+# Logs
+debug.log
+*.log
+
+# OS
+Thumbs.db
+.DS_Store

@@ -1,0 +1,518 @@
+/* Verso Consultation Form Styles - Navy Page, White Card */
+/* Charte Graphique VERSO */
+
+:root {
+    /* VERSO Brand Colors */
+    --verso-navy: #1C2445;
+    --verso-teal: #1783A7;
+    --verso-green: #75B843;
+    --verso-sky-blue: #58C1D7;
+    --verso-white: #FFFFFF;
+
+    /* Typography */
+    --verso-font: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --verso-heading-weight: 600;
+    --verso-body-weight: 400;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.verso-consultation-container {
+    width: 100%;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, var(--verso-navy) 0%, #2a3654 100%);
+    min-height: 100vh;
+    font-family: var(--verso-font);
+}
+
+.verso-consultation-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+    border-top: 5px solid var(--verso-teal);
+    background: var(--verso-white);
+    padding: 2rem;
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.verso-consultation-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.verso-consultation-title {
+    font-size: clamp(2rem, 5vw, 2.5rem);
+    font-weight: var(--verso-heading-weight);
+    color: var(--verso-navy);
+    margin: 0 0 1rem;
+    line-height: 1.2;
+}
+
+.verso-consultation-subtitle {
+    font-size: clamp(1rem, 3vw, 1.125rem);
+    color: #666666;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Form Styling */
+.verso-form {
+    width: 100%;
+}
+
+.verso-form-section {
+    margin-bottom: 2.5rem;
+    padding: 0;
+}
+
+.verso-section-title {
+    font-size: 1.25rem;
+    font-weight: var(--verso-heading-weight);
+    color: var(--verso-navy);
+    margin: 0 0 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--verso-teal);
+}
+
+.verso-form-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--verso-navy);
+    margin-bottom: 0.5rem;
+}
+
+.verso-form-label-bold {
+    font-weight: var(--verso-heading-weight);
+    font-size: 1rem;
+}
+
+.verso-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.verso-form-control,
+.verso-form-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    background-color: var(--verso-white);
+    color: var(--verso-navy);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.verso-form-control::placeholder {
+    color: #999999;
+}
+
+.verso-form-control:focus,
+.verso-form-select:focus {
+    outline: none;
+    border-color: var(--verso-teal);
+    box-shadow: 0 0 0 3px rgba(23, 131, 167, 0.1);
+}
+
+.verso-form-textarea {
+    resize: vertical;
+    font-family: inherit;
+}
+
+.verso-form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+}
+
+/* Form Layout Grid */
+.verso-form-row {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.verso-form-col {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .verso-form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .verso-form-row.verso-form-row-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Submitter Type Radio Buttons */
+.verso-submitter-type {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.verso-radio {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.verso-radio-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    background: var(--verso-white);
+    color: var(--verso-navy);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 150px;
+    justify-content: center;
+    text-align: center;
+}
+
+.verso-radio:checked + .verso-radio-label {
+    background-color: var(--verso-teal);
+    border-color: var(--verso-teal);
+    color: var(--verso-white);
+}
+
+.verso-radio-label:hover {
+    border-color: var(--verso-teal);
+}
+
+/* File Upload */
+.verso-file-input {
+    cursor: pointer;
+}
+
+.verso-file-input::file-selector-button {
+    padding: 0.5rem 1rem;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--verso-navy);
+    margin-right: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.verso-file-input::file-selector-button:hover {
+    background-color: var(--verso-teal);
+    border-color: var(--verso-teal);
+    color: var(--verso-white);
+}
+
+.verso-form-hint {
+    display: block;
+    font-size: 0.875rem;
+    color: #666666;
+    margin-top: 0.5rem;
+}
+
+.verso-form-help {
+    font-size: 0.9rem;
+    color: #666666;
+    margin-bottom: 1rem;
+}
+
+.verso-file-preview {
+    margin-top: 1rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: var(--verso-navy);
+}
+
+.file-item .file-name {
+    flex: 1;
+    min-width: 150px;
+    word-break: break-word;
+}
+
+.file-item .file-size {
+    color: #999999;
+    font-size: 0.85rem;
+}
+
+.file-item .remove-file {
+    cursor: pointer;
+    color: #d32f2f;
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.file-item .remove-file:hover {
+    color: #b71c1c;
+}
+
+/* Form Actions */
+.verso-form-actions {
+    margin: 2rem 0;
+    display: flex;
+    gap: 1rem;
+}
+
+.verso-btn {
+    padding: 0.875rem 2rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    min-width: 200px;
+}
+
+.verso-btn-primary {
+    background-color: var(--verso-teal);
+    color: var(--verso-white);
+}
+
+.verso-btn-primary:hover {
+    background-color: var(--verso-sky-blue);
+    box-shadow: 0 4px 12px rgba(23, 131, 167, 0.3);
+    transform: translateY(-2px);
+}
+
+.verso-btn-primary:active {
+    transform: translateY(0);
+}
+
+.verso-btn-primary:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.6;
+}
+
+.verso-loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--verso-white);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Messages */
+.verso-message {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 4px;
+    display: none;
+}
+
+.verso-message.success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    display: block;
+}
+
+.verso-message.error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    display: block;
+}
+
+/* Contact Info */
+.verso-contact-info {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #f9f9f9;
+    border-left: 4px solid var(--verso-teal);
+    border-radius: 4px;
+}
+
+.verso-contact-info p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    color: var(--verso-navy);
+}
+
+.verso-contact-info a {
+    color: var(--verso-teal);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.verso-contact-info a:hover {
+    text-decoration: underline;
+}
+
+/* Hidden Elements */
+.verso-hidden {
+    display: none !important;
+}
+
+/* Validation */
+input:invalid:not(:placeholder-shown),
+textarea:invalid:not(:placeholder-shown),
+select:invalid:not(:placeholder-shown) {
+    border-color: #dc3545;
+}
+
+input:valid:not(:placeholder-shown),
+textarea:valid:not(:placeholder-shown),
+select:valid:not(:placeholder-shown) {
+    border-color: var(--verso-green);
+}
+
+.invalid-feedback {
+    display: block;
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .verso-consultation-container {
+        padding: 1rem 0.5rem;
+    }
+
+    .verso-consultation-wrapper {
+        padding: 1.5rem;
+    }
+
+    .verso-consultation-title {
+        font-size: 1.75rem;
+    }
+
+    .verso-section-title {
+        font-size: 1.1rem;
+    }
+
+    .verso-submitter-type {
+        gap: 0.75rem;
+    }
+
+    .verso-radio-label {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        min-width: 120px;
+    }
+
+    .verso-btn {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .verso-consultation-container {
+        padding: 1rem 0;
+    }
+
+    .verso-consultation-wrapper {
+        padding: 1rem;
+    }
+
+    .verso-consultation-header {
+        margin-bottom: 2rem;
+    }
+
+    .verso-consultation-title {
+        font-size: 1.5rem;
+    }
+
+    .verso-consultation-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .verso-form-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .verso-section-title {
+        font-size: 1rem;
+    }
+
+    .verso-form-control,
+    .verso-form-select {
+        padding: 0.65rem;
+        font-size: 16px;
+    }
+
+    .verso-form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .verso-submitter-type {
+        flex-direction: column;
+    }
+
+    .verso-radio-label {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .verso-btn {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .verso-contact-info {
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .file-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media print {
+    .verso-consultation-container {
+        background: var(--verso-white);
+        padding: 0;
+    }
+
+    .verso-btn,
+    .verso-message {
+        display: none;
+    }
+}
