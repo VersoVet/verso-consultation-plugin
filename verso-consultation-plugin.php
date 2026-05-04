@@ -80,12 +80,18 @@ register_deactivation_hook(__FILE__, 'verso_consultation_deactivate');
 function verso_consultation_init() {
     // Register shortcode
     add_shortcode('verso_consultation_form', ['Verso_Form_Handler', 'render_form']);
-
-    // Register REST endpoints
-    Verso_Webhook_Sender::register_endpoint();
 }
 
 add_action('init', 'verso_consultation_init');
+
+/**
+ * Register REST endpoints
+ */
+function verso_consultation_register_rest_routes() {
+    Verso_Webhook_Sender::register_endpoint();
+}
+
+add_action('rest_api_init', 'verso_consultation_register_rest_routes');
 
 /**
  * Enqueue scripts and styles
