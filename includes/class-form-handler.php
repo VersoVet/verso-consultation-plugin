@@ -48,9 +48,9 @@ class Verso_Form_Handler {
                         </div>
                     </div>
 
-                    <!-- Veterinarian Section (hidden by default) -->
+                    <!-- Veterinarian Section (shown when vet is selected) -->
                     <div id="vet-section" class="verso-form-section verso-hidden">
-                        <h3 class="verso-section-title">Votre Clinique</h3>
+                        <h3 class="verso-section-title">🏥 Informations du Vétérinaire Référant</h3>
 
                         <div class="verso-form-row">
                             <div class="verso-form-col verso-form-col-6">
@@ -93,9 +93,9 @@ class Verso_Form_Handler {
                         </div>
                     </div>
 
-                    <!-- Owner Section (hidden by default) -->
-                    <div id="owner-section" class="verso-form-section verso-hidden">
-                        <h3 class="verso-section-title">Vos Coordonnées</h3>
+                    <!-- Owner Section (always visible) -->
+                    <div id="owner-section" class="verso-form-section">
+                        <h3 class="verso-section-title">👤 Coordonnées du Propriétaire/Contact</h3>
 
                         <div class="verso-form-row">
                             <div class="verso-form-col verso-form-col-6">
@@ -115,14 +115,14 @@ class Verso_Form_Handler {
                         <div class="verso-form-row">
                             <div class="verso-form-col verso-form-col-6">
                                 <div class="verso-form-group">
-                                    <label for="owner_email" class="verso-form-label">Email</label>
-                                    <input type="email" class="verso-form-control" id="owner_email" name="owner_email" />
+                                    <label for="owner_email" class="verso-form-label">Email *</label>
+                                    <input type="email" class="verso-form-control" id="owner_email" name="owner_email" required />
                                 </div>
                             </div>
                             <div class="verso-form-col verso-form-col-6">
                                 <div class="verso-form-group">
-                                    <label for="owner_telephone" class="verso-form-label">Téléphone</label>
-                                    <input type="tel" class="verso-form-control" id="owner_telephone" name="owner_telephone" placeholder="+33..." />
+                                    <label for="owner_telephone" class="verso-form-label">Téléphone *</label>
+                                    <input type="tel" class="verso-form-control" id="owner_telephone" name="owner_telephone" placeholder="+33..." required />
                                 </div>
                             </div>
                         </div>

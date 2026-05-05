@@ -11,8 +11,10 @@ jQuery(document).ready(function ($) {
         const type = $(this).val();
 
         if (type === 'vet') {
+            // Show both owner and vet sections when veterinarian is selected
+            $('#owner-section').removeClass('verso-hidden');
             $('#vet-section').removeClass('verso-hidden');
-            $('#owner-section').addClass('verso-hidden');
+
             // Make vet fields required
             $('#vet-section input[name], #vet-section select[name]').each(function () {
                 const name = $(this).attr('name');
@@ -20,13 +22,18 @@ jQuery(document).ready(function ($) {
                     $(this).prop('required', true);
                 }
             });
-            $('#owner-section input, #owner-section select').prop('required', false);
+
+            // Make owner fields required
+            $('#owner-section input[name="owner_nom"], #owner-section input[name="owner_prenom"], #owner-section input[name="owner_email"], #owner-section input[name="owner_telephone"]').prop('required', true);
         } else if (type === 'owner') {
+            // Show only owner section, hide vet section
             $('#owner-section').removeClass('verso-hidden');
             $('#vet-section').addClass('verso-hidden');
-            // Make owner name required
-            $('#owner-section input[name="owner_nom"], #owner-section input[name="owner_prenom"]').prop('required', true);
-            $('#owner-section input[name="owner_email"], #owner-section input[name="owner_telephone"]').prop('required', false);
+
+            // Make owner name and contact required
+            $('#owner-section input[name="owner_nom"], #owner-section input[name="owner_prenom"], #owner-section input[name="owner_email"], #owner-section input[name="owner_telephone"]').prop('required', true);
+
+            // Make vet fields not required
             $('#vet-section input, #vet-section select').prop('required', false);
         }
     });
@@ -95,6 +102,18 @@ jQuery(document).ready(function ($) {
             return;
         }
 
+        // Always validate owner information (required for both types)
+        const ownerNom = $('#owner_nom').val().trim();
+        const ownerPrenom = $('#owner_prenom').val().trim();
+        const ownerEmail = $('#owner_email').val().trim();
+        const ownerPhone = $('#owner_telephone').val().trim();
+
+        if (!ownerNom || !ownerPrenom || !ownerEmail || !ownerPhone) {
+            showMessage('Veuillez remplir toutes les coordonnées du propriétaire', 'error');
+            return;
+        }
+
+        // If veterinarian, also validate vet information
         if (submitterType === 'vet') {
             const vetNom = $('#vet_nom').val().trim();
             const vetClinic = $('#vet_clinique').val().trim();
@@ -102,17 +121,7 @@ jQuery(document).ready(function ($) {
             const vetPhone = $('#vet_telephone').val().trim();
 
             if (!vetNom || !vetClinic || !vetEmail || !vetPhone) {
-                showMessage('Veuillez remplir toutes les infos de votre clinique', 'error');
-                return;
-            }
-        }
-
-        if (submitterType === 'owner') {
-            const ownerNom = $('#owner_nom').val().trim();
-            const ownerPrenom = $('#owner_prenom').val().trim();
-
-            if (!ownerNom || !ownerPrenom) {
-                showMessage('Veuillez entrer votre nom et prénom', 'error');
+                showMessage('Veuillez remplir toutes les infos du vétérinaire référant', 'error');
                 return;
             }
         }
@@ -149,8 +158,9 @@ jQuery(document).ready(function ($) {
                 form[0].reset();
                 form.removeClass('was-validated');
                 $('#file-preview').empty();
+                // Keep owner section visible, hide vet section after submission
+                $('#owner-section').removeClass('verso-hidden');
                 $('#vet-section').addClass('verso-hidden');
-                $('#owner-section').addClass('verso-hidden');
 
                 // Scroll to message
                 $('html, body').animate({
