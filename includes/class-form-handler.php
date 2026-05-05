@@ -32,25 +32,13 @@ class Verso_Form_Handler {
                     <input type="hidden" name="uuid" value="<?php echo esc_attr(wp_generate_uuid4()); ?>" />
                     <input type="hidden" name="specialite" value="Troubles Locomoteurs" />
 
-                    <!-- Submitter Type -->
-                    <div class="verso-form-section">
-                        <label class="verso-form-label verso-form-label-bold">Vous êtes *</label>
-                        <div class="verso-submitter-type">
-                            <input type="radio" class="verso-radio" name="submitter_type" id="type_vet" value="vet" required>
-                            <label class="verso-radio-label" for="type_vet">
-                                🩺 Vétérinaire Référant
-                            </label>
+                    <!-- Hidden field: always owner (removed choice) -->
+                    <input type="hidden" name="submitter_type" value="owner" />
 
-                            <input type="radio" class="verso-radio" name="submitter_type" id="type_owner" value="owner" required>
-                            <label class="verso-radio-label" for="type_owner">
-                                👤 Propriétaire
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Veterinarian Section (shown when vet is selected) -->
-                    <div id="vet-section" class="verso-form-section verso-hidden">
-                        <h3 class="verso-section-title">🏥 Informations du Vétérinaire Référant</h3>
+                    <!-- Veterinarian Section (always visible, optional) -->
+                    <div id="vet-section" class="verso-form-section">
+                        <h3 class="verso-section-title">🏥 Vétérinaire Référant (Optionnel)</h3>
+                        <p class="verso-form-help">Si la demande est guidée par un vétérinaire, remplissez ses coordonnées ci-dessous</p>
 
                         <div class="verso-form-row">
                             <div class="verso-form-col verso-form-col-6">

@@ -103,12 +103,12 @@ class Verso_Webhook_Sender {
                 $consultation_data['fichiers'] = $file_urls;
             }
 
-            // Send webhook to skill
-            $skill_response = self::send_webhook($consultation_data);
+            // Store consultation locally (no webhook - Soma will pull via API)
+            $stored = self::store_consultation_locally($consultation_data);
 
-            if (!$skill_response) {
+            if (!$stored) {
                 return new WP_REST_Response(
-                    ['success' => false, 'message' => 'Erreur lors de l\'envoi au serveur'],
+                    ['success' => false, 'message' => 'Erreur lors du stockage de la demande'],
                     500
                 );
             }
@@ -142,11 +142,12 @@ class Verso_Webhook_Sender {
      * @return array Consultation request data
      */
     private static function build_consultation_request($uuid, $submitter_type, WP_REST_Request $request) {
-        // Build VET info if applicable
+        // Build VET info if provided (now optional even for owner submissions)
         $vet = null;
-        if ($submitter_type === 'vet') {
+        $vet_nom = sanitize_text_field($request->get_param('vet_nom'));
+        if (!empty($vet_nom)) {
             $vet = [
-                'nom' => sanitize_text_field($request->get_param('vet_nom')),
+                'nom' => $vet_nom,
                 'prenom' => sanitize_text_field($request->get_param('vet_prenom')),
                 'clinique' => sanitize_text_field($request->get_param('vet_clinique')),
                 'email' => sanitize_email($request->get_param('vet_email')),
@@ -243,60 +244,53 @@ class Verso_Webhook_Sender {
     }
 
     /**
-     * Send webhook to consultation skill with HMAC signature
+     * Store consultation locally (no webhook - Soma will pull via API)
      *
      * @param array $data Consultation data
      * @return bool Success
      */
-    private static function send_webhook($data) {
-        // Get webhook secret from Vault
-        $webhook_secret = Verso_Vault_Client::get_secret('consultation_webhook_secret');
-        if (!$webhook_secret) {
-            error_log('Verso: consultation_webhook_secret not found in Vault');
-            return false;
+    private static function store_consultation_locally($data) {
+        global $wpdb;
+
+        // Create consultations table if it doesn't exist
+        $table_name = $wpdb->prefix . 'verso_consultations';
+
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+            $charset_collate = $wpdb->get_charset_collate();
+            $sql = "CREATE TABLE $table_name (
+                id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                uuid VARCHAR(255) NOT NULL UNIQUE,
+                submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                data_json LONGTEXT NOT NULL,
+                processed BOOLEAN DEFAULT FALSE,
+                processed_at DATETIME NULL,
+                KEY idx_processed (processed)
+            ) $charset_collate;";
+
+            require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+            dbDelta($sql);
         }
 
-        // Prepare JSON payload
-        $json_body = wp_json_encode($data);
-
-        // Generate HMAC signature
-        $signature = hash_hmac('sha256', $json_body, $webhook_secret);
-
-        // Get skill URL
-        $skill_url = get_option('verso_consultation_skill_url', 'http://10.0.0.44:8092');
-        $endpoint = trailingslashit($skill_url) . 'consultations/submit';
-
-        // Send request
-        $response = wp_remote_post(
-            $endpoint,
+        // Insert consultation into local database
+        $result = $wpdb->insert(
+            $table_name,
             [
-                'headers'   => [
-                    'Content-Type'          => 'application/json',
-                    'X-Verso-Signature'     => $signature,
-                ],
-                'body'      => $json_body,
-                'timeout'   => 30,
-                'sslverify' => false,
+                'uuid'      => $data['uuid'],
+                'data_json' => wp_json_encode($data),
             ]
         );
 
-        if (is_wp_error($response)) {
-            error_log('Verso webhook error: ' . $response->get_error_message());
+        if (!$result) {
+            error_log('Verso: Failed to store consultation locally: ' . $wpdb->last_error);
             return false;
         }
 
-        $status_code = wp_remote_retrieve_response_code($response);
-        if ($status_code !== 201) {
-            error_log('Verso webhook returned status ' . $status_code);
-            error_log('Response: ' . wp_remote_retrieve_body($response));
-            return false;
-        }
-
+        error_log('Verso: Consultation ' . $data['uuid'] . ' stored locally');
         return true;
     }
 
     /**
-     * Send confirmation email to admin
+     * Send webhook notification email to skill monitoring service
      *
      * @param array $data Consultation data
      */
@@ -308,19 +302,19 @@ class Verso_Webhook_Sender {
             $submitter = 'Vétérinaire - ' . $data['vet']['clinique'];
         }
 
-        $subject = sprintf(
+        // Email pour l'équipe Verso Vet (human readable)
+        $admin_subject = sprintf(
             '[Verso Vet] Nouvelle demande - %s (%s)',
             $animal_name,
             $data['specialite']
         );
 
-        $body = sprintf(
+        $admin_body = sprintf(
             "Nouvelle demande de consultation reçue\n\n" .
             "UUID: %s\n" .
             "Type: %s\n" .
             "Patient: %s (%s)\n" .
             "Spécialité: %s\n" .
-            "Urgence: %s\n" .
             "Motif: %s\n\n" .
             "Accédez au dashboard: %s/dashboard",
             $data['uuid'],
@@ -328,11 +322,46 @@ class Verso_Webhook_Sender {
             $animal_name,
             $data['animal']['espece'],
             $data['specialite'],
-            $data['urgence'] ? 'OUI' : 'Non',
             $data['motif'],
             get_option('verso_consultation_skill_url', 'http://10.0.0.44:8092')
         );
 
-        wp_mail('consultations@verso-vet.com', $subject, $body);
+        $admin_result = wp_mail('consultations@verso-vet.com', $admin_subject, $admin_body);
+        error_log('Verso: Admin email to consultations@verso-vet.com - ' . ($admin_result ? 'SUCCESS' : 'FAILED'));
+
+        // Email pour le système de monitoring du skill (parseable)
+        // Sujet contient l'UUID pour extraction facile
+        $webhook_subject = sprintf(
+            'VERSO_WEBHOOK UUID:%s TYPE:%s ANIMAL:%s',
+            $data['uuid'],
+            $data['submitter_type'],
+            sanitize_title($animal_name)
+        );
+
+        $webhook_body = sprintf(
+            "UUID: %s\n" .
+            "Type: %s\n" .
+            "Animal: %s (%s)\n" .
+            "Motif: %s\n" .
+            "Website: verso-vet.com",
+            $data['uuid'],
+            $data['submitter_type'],
+            $animal_name,
+            $data['animal']['espece'] ?? 'Unknown',
+            $data['motif']
+        );
+
+        // Get webhook email address from options
+        $webhook_email = get_option('verso_consultation_webhook_email');
+
+        // Ensure email is set to consultations@verso-vet.com
+        if (empty($webhook_email)) {
+            $webhook_email = 'consultations@verso-vet.com';
+            update_option('verso_consultation_webhook_email', $webhook_email);
+            error_log('Verso: Setting webhook email to ' . $webhook_email);
+        }
+
+        $webhook_result = wp_mail($webhook_email, $webhook_subject, $webhook_body);
+        error_log('Verso: Webhook email to ' . $webhook_email . ' - ' . ($webhook_result ? 'SUCCESS' : 'FAILED'));
     }
 }

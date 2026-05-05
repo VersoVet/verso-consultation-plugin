@@ -6,36 +6,13 @@ jQuery(document).ready(function ($) {
     const form = $('#verso-consultation-form');
     const messageEl = $('#form-message');
 
-    // Handle submitter type change
-    $('input[name="submitter_type"]').on('change', function () {
-        const type = $(this).val();
+    // Initialize: Owner fields are always required, Vet fields are optional
+    $(document).ready(function () {
+        // Owner fields always required
+        $('#owner-section input[name="owner_nom"], #owner-section input[name="owner_prenom"], #owner-section input[name="owner_email"], #owner-section input[name="owner_telephone"]').prop('required', true);
 
-        if (type === 'vet') {
-            // Show both owner and vet sections when veterinarian is selected
-            $('#owner-section').removeClass('verso-hidden');
-            $('#vet-section').removeClass('verso-hidden');
-
-            // Make vet fields required
-            $('#vet-section input[name], #vet-section select[name]').each(function () {
-                const name = $(this).attr('name');
-                if (name === 'vet_nom' || name === 'vet_clinique' || name === 'vet_email' || name === 'vet_telephone') {
-                    $(this).prop('required', true);
-                }
-            });
-
-            // Make owner fields required
-            $('#owner-section input[name="owner_nom"], #owner-section input[name="owner_prenom"], #owner-section input[name="owner_email"], #owner-section input[name="owner_telephone"]').prop('required', true);
-        } else if (type === 'owner') {
-            // Show only owner section, hide vet section
-            $('#owner-section').removeClass('verso-hidden');
-            $('#vet-section').addClass('verso-hidden');
-
-            // Make owner name and contact required
-            $('#owner-section input[name="owner_nom"], #owner-section input[name="owner_prenom"], #owner-section input[name="owner_email"], #owner-section input[name="owner_telephone"]').prop('required', true);
-
-            // Make vet fields not required
-            $('#vet-section input, #vet-section select').prop('required', false);
-        }
+        // Vet fields optional (not required)
+        $('#vet-section input[name], #vet-section select[name]').prop('required', false);
     });
 
     // Handle file input changes
@@ -81,16 +58,10 @@ jQuery(document).ready(function ($) {
         // Validate form
         form.addClass('was-validated');
 
-        // Basic validation
-        const submitterType = $('input[name="submitter_type"]:checked').val();
+        // Validate animal data
         const animalNom = $('#animal_nom').val().trim();
         const animalEspece = $('#animal_espece').val();
         const motif = $('#motif').val().trim();
-
-        if (!submitterType) {
-            showMessage('Veuillez sélectionner votre type', 'error');
-            return;
-        }
 
         if (!animalNom || !animalEspece) {
             showMessage('Veuillez remplir les données du patient', 'error');
@@ -102,7 +73,7 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        // Always validate owner information (required for both types)
+        // Always validate owner information (required)
         const ownerNom = $('#owner_nom').val().trim();
         const ownerPrenom = $('#owner_prenom').val().trim();
         const ownerEmail = $('#owner_email').val().trim();
@@ -113,15 +84,17 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        // If veterinarian, also validate vet information
-        if (submitterType === 'vet') {
-            const vetNom = $('#vet_nom').val().trim();
-            const vetClinic = $('#vet_clinique').val().trim();
-            const vetEmail = $('#vet_email').val().trim();
-            const vetPhone = $('#vet_telephone').val().trim();
+        // Vet information is optional - just check if partially filled
+        const vetNom = $('#vet_nom').val().trim();
+        const vetClinic = $('#vet_clinique').val().trim();
+        const vetEmail = $('#vet_email').val().trim();
+        const vetPhone = $('#vet_telephone').val().trim();
 
+        // If ANY vet field is filled, require all vet fields
+        const vetFieldsFilled = vetNom || vetClinic || vetEmail || vetPhone;
+        if (vetFieldsFilled) {
             if (!vetNom || !vetClinic || !vetEmail || !vetPhone) {
-                showMessage('Veuillez remplir toutes les infos du vétérinaire référant', 'error');
+                showMessage('Si vous remplissez les infos du vétérinaire, complétez tous les champs requis', 'error');
                 return;
             }
         }
