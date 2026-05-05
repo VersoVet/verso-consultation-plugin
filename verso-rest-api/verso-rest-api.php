@@ -36,6 +36,7 @@ function verso_handle_consultation_submit($request) {
     $owner_prenom = sanitize_text_field($params['owner_prenom'] ?? '');
     $owner_email = sanitize_email($params['owner_email'] ?? '');
     $owner_telephone = sanitize_text_field($params['owner_telephone'] ?? '');
+    $owner_address = sanitize_textarea_field($params['owner_address'] ?? '');
     $vet_nom = sanitize_text_field($params['vet_nom'] ?? '');
     $vet_prenom = sanitize_text_field($params['vet_prenom'] ?? '');
     $vet_clinique = sanitize_text_field($params['vet_clinique'] ?? '');
@@ -66,7 +67,7 @@ function verso_handle_consultation_submit($request) {
     // Construire et envoyer l'email
     $subject = sprintf('[Verso Vet] Nouvelle demande - %s (%s)', $animal_nom, $animal_espece);
     $message = verso_build_email_message(
-        $owner_nom, $owner_prenom, $owner_email, $owner_telephone,
+        $owner_nom, $owner_prenom, $owner_email, $owner_telephone, $owner_address,
         $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone,
         $animal_nom, $animal_espece, $animal_race, $motif, $documents, $uuid
     );
@@ -178,7 +179,7 @@ function verso_handle_file_uploads($uuid, $files) {
  *
  * @return string HTML du message email
  */
-function verso_build_email_message($owner_nom, $owner_prenom, $owner_email, $owner_telephone,
+function verso_build_email_message($owner_nom, $owner_prenom, $owner_email, $owner_telephone, $owner_address,
                                     $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone,
                                     $animal_nom, $animal_espece, $animal_race, $motif, $documents, $uuid) {
 
@@ -210,6 +211,9 @@ function verso_build_email_message($owner_nom, $owner_prenom, $owner_email, $own
 
     if ($owner_telephone) {
         $html .= "<div class='field'><span class='label'>Téléphone:</span> " . esc_html($owner_telephone) . "</div>";
+    }
+    if ($owner_address) {
+        $html .= "<div class='field'><span class='label'>Adresse:</span> " . nl2br(esc_html($owner_address)) . "</div>";
     }
     $html .= "</div>";
 
