@@ -49,11 +49,6 @@ function verso_render_form() {
                 </div>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <label><strong>Adresse *</strong></label>
-                <textarea name="owner_address" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; min-height: 60px;" placeholder="Rue, code postal, ville"></textarea>
-            </div>
-
             <!-- VÉTÉRINAIRE RÉFÉRANT - TOUJOURS VISIBLE, OPTIONNEL -->
             <h3>🏥 Vétérinaire Référant (Optionnel)</h3>
             <p style="font-size: 14px; color: #666;">Si la demande est guidée par un vétérinaire, remplissez ses coordonnées ci-dessous</p>
