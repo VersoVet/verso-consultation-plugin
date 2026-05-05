@@ -65,7 +65,6 @@ function verso_handle_consultation_submit($request) {
     $vet_clinique = sanitize_text_field($params['vet_clinique'] ?? '');
     $vet_email = sanitize_email($params['vet_email'] ?? '');
     $vet_telephone = sanitize_text_field($params['vet_telephone'] ?? '');
-    $vet_address = sanitize_textarea_field($params['vet_address'] ?? '');
     $animal_nom = sanitize_text_field($params['animal_nom'] ?? '');
     $animal_espece = sanitize_text_field($params['animal_espece'] ?? '');
     $animal_race = sanitize_text_field($params['animal_race'] ?? '');
@@ -92,7 +91,7 @@ function verso_handle_consultation_submit($request) {
     $subject = sprintf('[Verso Vet] Nouvelle demande - %s (%s)', $animal_nom, $animal_espece);
     $message = verso_build_email_message(
         $owner_nom, $owner_prenom, $owner_email, $owner_telephone, $owner_address,
-        $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone, $vet_address,
+        $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone,
         $animal_nom, $animal_espece, $animal_race, $motif, $documents, $uuid
     );
     $headers = array('Content-Type: text/html; charset=UTF-8');
@@ -204,7 +203,7 @@ function verso_handle_file_uploads($uuid, $files) {
  * @return string HTML du message email
  */
 function verso_build_email_message($owner_nom, $owner_prenom, $owner_email, $owner_telephone, $owner_address,
-                                    $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone, $vet_address,
+                                    $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone,
                                     $animal_nom, $animal_espece, $animal_race, $motif, $documents, $uuid) {
 
     $html = "<!DOCTYPE html>
@@ -255,9 +254,6 @@ function verso_build_email_message($owner_nom, $owner_prenom, $owner_email, $own
         }
         if ($vet_telephone) {
             $html .= "<div class='field'><span class='label'>Téléphone:</span> " . esc_html($vet_telephone) . "</div>";
-        }
-        if ($vet_address) {
-            $html .= "<div class='field'><span class='label'>Adresse:</span> " . nl2br(esc_html($vet_address)) . "</div>";
         }
         $html .= "</div>";
     }

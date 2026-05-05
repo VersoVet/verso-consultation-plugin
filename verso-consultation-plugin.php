@@ -80,15 +80,9 @@ function verso_render_form() {
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div>
-                    <label>Email</label>
-                    <input type="email" name="vet_email" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-                <div>
-                    <label>Adresse</label>
-                    <input type="text" name="vet_address" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
+            <div style="margin-bottom: 20px;">
+                <label>Email</label>
+                <input type="email" name="vet_email" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
             </div>
 
             <!-- ANIMAL -->
