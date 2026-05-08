@@ -3,7 +3,7 @@
  */
 
 jQuery(document).ready(function ($) {
-    const form = $('#verso-consultation-form');
+    const form = $('#verso-form');
     const messageEl = $('#form-message');
 
     // Initialize: Owner fields are always required, Vet fields are optional
@@ -108,6 +108,8 @@ jQuery(document).ready(function ($) {
      */
     function submitForm() {
         const formData = new FormData(form[0]);
+        // Add action parameter for WordPress AJAX routing
+        formData.append('action', 'verso_submit_consultation');
 
         // Add AJAX indicator
         const submitBtn = form.find('button[type="submit"]');

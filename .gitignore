@@ -1,3 +1,10 @@
+# SECURITY-CRITICAL - NEVER COMMIT THESE
+.env
+*.key
+*.pem
+credentials*
+secrets*
+
 # IDE
 .idea/
 .vscode/
@@ -18,6 +25,11 @@ composer.lock
 # Logs
 debug.log
 *.log
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
 
 # OS
 Thumbs.db

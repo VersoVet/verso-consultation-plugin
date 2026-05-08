@@ -1,0 +1,34 @@
+{
+  "core": {
+    "name": "verso-consultation-plugin",
+    "type": "custom",
+    "version": "3.0.0",
+    "description": "WordPress plugin for consultation form submissions with email notifications",
+    "brain_area": "cerebellum",
+    "author": "Verso Vet"
+  },
+  "forge": {
+    "type": "custom",
+    "repository": "VersoVet/verso-consultation-plugin",
+    "development": {
+      "dev_platform": "dendrite",
+      "test_platform": "dendrite"
+    },
+    "custom": {
+      "target_app": "wordpress",
+      "components": ["form", "email-webhook", "database"],
+      "vault_keys": []
+    }
+  },
+  "heart": {
+    "deployment": {
+      "target_host": "10.0.0.90",
+      "platform": "linux",
+      "skip_systemd": true,
+      "post_deploy": "wp plugin activate verso-consultation-plugin"
+    }
+  },
+  "routing": {
+    "disabled": true
+  }
+}
