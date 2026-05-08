@@ -136,8 +136,7 @@ function verso_store_consultation_in_db(
         vet_telephone varchar(20),
         status varchar(50) DEFAULT 'new',
         created_at datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        UNIQUE KEY uuid (uuid)
+        PRIMARY KEY (id)
     ) $charset_collate;";
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -241,8 +240,7 @@ function verso_activate_plugin(): void {
         vet_telephone varchar(20),
         status varchar(50) DEFAULT 'new',
         created_at datetime DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (id),
-        UNIQUE KEY uuid (uuid)
+        PRIMARY KEY (id)
     ) $charset_collate;";
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
