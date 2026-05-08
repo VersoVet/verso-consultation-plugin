@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Verso Consultation Form
- * Description: Simple consultation form - sends email to consultations@verso-vet.com
- * Version: 2.0.0
+ * Description: Professional consultation form with AJAX email notifications
+ * Version: 2.4.0
  * Author: Verso Vet
  */
 
@@ -10,259 +10,124 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Register AJAX handlers (for both logged in and non-logged in users)
+add_action('wp_ajax_verso_submit_consultation', 'verso_handle_consultation_ajax');
+add_action('wp_ajax_nopriv_verso_submit_consultation', 'verso_handle_consultation_ajax');
 
-// Shortcode pour afficher le formulaire
-add_shortcode('verso_consultation_form', 'verso_render_form');
+function verso_handle_consultation_ajax(): void {
+    // Get and sanitize POST data
+    $owner_nom = isset($_POST['owner_nom']) ? sanitize_text_field($_POST['owner_nom']) : '';
+    $owner_prenom = isset($_POST['owner_prenom']) ? sanitize_text_field($_POST['owner_prenom']) : '';
+    $owner_email = isset($_POST['owner_email']) ? sanitize_email($_POST['owner_email']) : '';
+    $owner_telephone = isset($_POST['owner_telephone']) ? sanitize_text_field($_POST['owner_telephone']) : '';
+    $owner_address = isset($_POST['owner_address']) ? sanitize_textarea_field($_POST['owner_address']) : '';
 
-function verso_render_form() {
-    ob_start();
-    ?>
-    <div style="max-width: 800px; margin: 40px auto; padding: 20px;">
-        <h1>🏥 Demande de Consultation</h1>
-        <p>Troubles locomoteurs, imagerie, chirurgie. Nos équipes vous répondront sous 48 heures.</p>
+    $vet_nom = isset($_POST['vet_nom']) ? sanitize_text_field($_POST['vet_nom']) : '';
+    $vet_prenom = isset($_POST['vet_prenom']) ? sanitize_text_field($_POST['vet_prenom']) : '';
+    $vet_clinique = isset($_POST['vet_clinique']) ? sanitize_text_field($_POST['vet_clinique']) : '';
+    $vet_email = isset($_POST['vet_email']) ? sanitize_email($_POST['vet_email']) : '';
+    $vet_telephone = isset($_POST['vet_telephone']) ? sanitize_text_field($_POST['vet_telephone']) : '';
 
-        <form id="verso-form" method="POST" enctype="multipart/form-data" style="background: #f5f5f5; padding: 30px; border-radius: 8px;">
-            <?php wp_nonce_field('verso_form', 'verso_nonce'); ?>
-            <input type="hidden" name="action" value="verso_submit">
+    $animal_nom = isset($_POST['animal_nom']) ? sanitize_text_field($_POST['animal_nom']) : '';
+    $animal_espece = isset($_POST['animal_espece']) ? sanitize_text_field($_POST['animal_espece']) : '';
+    $animal_race = isset($_POST['animal_race']) ? sanitize_text_field($_POST['animal_race']) : '';
+    $motif = isset($_POST['motif']) ? sanitize_textarea_field($_POST['motif']) : '';
 
-            <!-- PROPRIÉTAIRE - TOUJOURS VISIBLE ET REQUIS -->
-            <h3>👤 Coordonnées du Propriétaire/Contact *</h3>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div>
-                    <label><strong>Nom *</strong></label>
-                    <input type="text" name="owner_nom" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-                <div>
-                    <label><strong>Prénom *</strong></label>
-                    <input type="text" name="owner_prenom" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div>
-                    <label><strong>Email *</strong></label>
-                    <input type="email" name="owner_email" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-                <div>
-                    <label><strong>Téléphone *</strong></label>
-                    <input type="tel" name="owner_telephone" required placeholder="+33..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label><strong>Adresse *</strong></label>
-                <textarea name="owner_address" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; min-height: 60px;" placeholder="Rue, code postal, ville"></textarea>
-            </div>
-
-            <!-- VÉTÉRINAIRE RÉFÉRANT - TOUJOURS VISIBLE, OPTIONNEL -->
-            <h3>🏥 Vétérinaire Référant (Optionnel)</h3>
-            <p style="font-size: 14px; color: #666;">Si la demande est guidée par un vétérinaire, remplissez ses coordonnées ci-dessous</p>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div>
-                    <label>Nom</label>
-                    <input type="text" name="vet_nom" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-                <div>
-                    <label>Prénom</label>
-                    <input type="text" name="vet_prenom" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div>
-                    <label>Clinique</label>
-                    <input type="text" name="vet_clinique" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-                <div>
-                    <label>Téléphone</label>
-                    <input type="tel" name="vet_telephone" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label>Email</label>
-                <input type="email" name="vet_email" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-            </div>
-
-            <!-- ANIMAL -->
-            <h3>🐾 Patient Animal *</h3>
-
-            <div style="margin-bottom: 20px;">
-                <label><strong>Nom du Patient *</strong></label>
-                <input type="text" name="animal_nom" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Rex, Minou, etc.">
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div>
-                    <label><strong>Espèce *</strong></label>
-                    <select name="animal_espece" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                        <option value="">-- Sélectionnez --</option>
-                        <option value="Chien">🐕 Chien</option>
-                        <option value="Chat">🐈 Chat</option>
-                        <option value="Lapin">🐰 Lapin</option>
-                        <option value="NAC">🦗 NAC</option>
-                        <option value="Cheval">🐴 Cheval</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Race</label>
-                    <input type="text" name="animal_race" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-            </div>
-
-            <!-- CONSULTATION -->
-            <h3>📋 Consultation *</h3>
-
-            <div style="margin-bottom: 20px;">
-                <label><strong>Motif *</strong></label>
-                <textarea name="motif" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; min-height: 120px;" placeholder="Décrivez le problème..."></textarea>
-            </div>
-
-            <!-- FICHIERS -->
-            <h3>📎 Documents (Optionnel)</h3>
-            <p style="font-size: 14px;">PDF, JPG, PNG, TIFF - Max 50 MB total</p>
-
-            <div style="margin-bottom: 20px;">
-                <input type="file" name="documents" multiple accept=".pdf,.jpg,.jpeg,.png,.tiff" style="width: 100%; padding: 10px;">
-                <div id="verso-files-list" style="margin-top: 10px; font-size: 14px; color: #666;"></div>
-            </div>
-
-            <!-- SUBMIT -->
-            <button type="submit" style="background: #2196F3; color: white; padding: 12px 30px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; width: 100%;">
-                📤 Envoyer la Demande
-            </button>
-
-            <div id="verso-message" style="margin-top: 20px; padding: 15px; border-radius: 4px; display: none;"></div>
-        </form>
-
-        <div style="margin-top: 40px; padding: 20px; background: #e3f2fd; border-radius: 4px; text-align: center;">
-            <p><strong>📧 Ou contactez-nous directement:</strong></p>
-            <p><a href="mailto:consultations@verso-vet.com">consultations@verso-vet.com</a></p>
-        </div>
-    </div>
-
-    <script>
-    jQuery(document).ready(function($) {
-        // Preview de fichiers sélectionnés
-        $('input[name="documents"]').on('change', function() {
-            var fileList = '';
-            if (this.files && this.files.length > 0) {
-                fileList = '<strong>Fichiers sélectionnés:</strong><br>';
-                for (var i = 0; i < this.files.length; i++) {
-                    var size = (this.files[i].size / 1024 / 1024).toFixed(2);
-                    fileList += '• ' + this.files[i].name + ' (' + size + ' MB)<br>';
-                }
-            }
-            $('#verso-files-list').html(fileList);
-        });
-
-        $('#verso-form').on('submit', function(e) {
-            e.preventDefault();
-            var form = this;
-            var msg = $('#verso-message');
-
-            msg.html('📧 Envoi de la demande...').css('background', '#bbdefb').css('color', '#1565c0').show();
-
-            // Soumettre le formulaire naturellement (avec fichiers)
-            setTimeout(() => {
-                form.submit();
-            }, 1000);
-        });
-    });
-    </script>
-    <?php
-    return ob_get_clean();
-}
-
-// Traiter la soumission du formulaire
-add_action('wp_ajax_verso_submit', 'verso_handle_submit');
-add_action('wp_ajax_nopriv_verso_submit', 'verso_handle_submit');
-
-function verso_handle_submit() {
-    // Vérifier le nonce
-    if (!isset($_POST['verso_nonce']) || !wp_verify_nonce($_POST['verso_nonce'], 'verso_form')) {
-        wp_send_json_error('Erreur de sécurité');
-    }
-
-    // Récupérer et valider les données
-    $owner_nom = sanitize_text_field($_POST['owner_nom'] ?? '');
-    $owner_prenom = sanitize_text_field($_POST['owner_prenom'] ?? '');
-    $owner_email = sanitize_email($_POST['owner_email'] ?? '');
-    $owner_telephone = sanitize_text_field($_POST['owner_telephone'] ?? '');
-    $owner_address = sanitize_textarea_field($_POST['owner_address'] ?? '');
-    $animal_nom = sanitize_text_field($_POST['animal_nom'] ?? '');
-    $animal_espece = sanitize_text_field($_POST['animal_espece'] ?? '');
-    $animal_race = sanitize_text_field($_POST['animal_race'] ?? '');
-    $motif = sanitize_textarea_field($_POST['motif'] ?? '');
-
-    // Valider les champs obligatoires
-    if (!$owner_nom || !$owner_prenom || !$owner_email || !$owner_telephone || !$animal_nom || !$animal_espece || !$motif) {
+    // Validate required fields
+    if (empty($owner_nom) || empty($owner_prenom) || empty($owner_email) || empty($animal_nom) || empty($motif)) {
         wp_send_json_error('Veuillez remplir tous les champs obligatoires');
     }
 
-    // Préparer le contenu de l'email
-    $email_subject = sprintf('[Verso Vet] Nouvelle demande - %s (%s)', $animal_nom, $animal_espece);
-
-    $email_body = "Nouvelle demande de consultation reçue\n\n";
-    $email_body .= "═══════════════════════════════════════════\n";
-    $email_body .= "PROPRIÉTAIRE/CONTACT\n";
-    $email_body .= "═══════════════════════════════════════════\n";
-    $email_body .= sprintf("Nom: %s\n", $owner_nom);
-    $email_body .= sprintf("Prénom: %s\n", $owner_prenom);
-    $email_body .= sprintf("Email: %s\n", $owner_email);
-    $email_body .= sprintf("Téléphone: %s\n", $owner_telephone);
-    $email_body .= sprintf("Adresse: %s\n\n", $owner_address);
-
-    $email_body .= "═══════════════════════════════════════════\n";
-    $email_body .= "PATIENT ANIMAL\n";
-    $email_body .= "═══════════════════════════════════════════\n";
-    $email_body .= sprintf("Nom: %s\n", $animal_nom);
-    $email_body .= sprintf("Espèce: %s\n", $animal_espece);
-    $email_body .= sprintf("Race: %s\n\n", $animal_race ?: '(non spécifié)');
-
-    $email_body .= "═══════════════════════════════════════════\n";
-    $email_body .= "MOTIF DE CONSULTATION\n";
-    $email_body .= "═══════════════════════════════════════════\n";
-    $email_body .= sprintf("%s\n\n", $motif);
-
-    if (isset($_POST['vet_nom']) || isset($_POST['vet_email'])) {
-        $email_body .= "═══════════════════════════════════════════\n";
-        $email_body .= "VÉTÉRINAIRE RÉFÉRANT\n";
-        $email_body .= "═══════════════════════════════════════════\n";
-        $email_body .= sprintf("Nom: %s\n", sanitize_text_field($_POST['vet_nom'] ?? '(non fourni)'));
-        $email_body .= sprintf("Prénom: %s\n", sanitize_text_field($_POST['vet_prenom'] ?? '(non fourni)'));
-        $email_body .= sprintf("Clinique: %s\n", sanitize_text_field($_POST['vet_clinique'] ?? '(non fourni)'));
-        $email_body .= sprintf("Email: %s\n", sanitize_email($_POST['vet_email'] ?? '(non fourni)'));
-        $email_body .= sprintf("Téléphone: %s\n\n", sanitize_text_field($_POST['vet_telephone'] ?? '(non fourni)'));
+    if (!is_email($owner_email)) {
+        wp_send_json_error('Email propriétaire invalide');
     }
 
-    $email_body .= "═══════════════════════════════════════════\n";
-    $email_body .= "Demande reçue le: " . current_time('Y-m-d H:i:s') . "\n";
-    $email_body .= "═══════════════════════════════════════════\n";
+    // Generate UUID
+    $uuid = 'verso-' . time() . '-' . substr(md5(uniqid()), 0, 8);
 
-    // Envoyer l'email
-    $result = wp_mail('consultations@verso-vet.com', $email_subject, $email_body);
+    // Build email content
+    $email_body = verso_build_email_body(
+        $owner_nom, $owner_prenom, $owner_email, $owner_telephone, $owner_address,
+        $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone,
+        $animal_nom, $animal_espece, $animal_race, $motif, $uuid
+    );
+
+    // Send email
+    $to = 'consultations@verso-vet.com';
+    $subject = "[Verso Vet] Nouvelle demande - {$animal_nom} ({$animal_espece})";
+    $headers = [
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: ' . sanitize_email($owner_email),
+        'Reply-To: ' . sanitize_email($owner_email),
+    ];
+
+    $result = wp_mail($to, $subject, $email_body, $headers);
 
     if ($result) {
-        wp_send_json_success('Demande envoyée avec succès! Vous recevrez une confirmation par email.');
+        wp_send_json_success([
+            'message' => 'Demande envoyée avec succès',
+            'uuid' => $uuid
+        ]);
     } else {
-        wp_send_json_error('Erreur lors de l\'envoi de l\'email');
+        wp_send_json_error('Erreur lors de l\'envoi. Veuillez réessayer.');
     }
 }
 
-// Créer la page au moment de l'activation
-register_activation_hook(__FILE__, function() {
-    $page = get_page_by_path('demande-consultation');
-    if (!$page) {
-        wp_insert_post([
-            'post_title' => 'Demande de consultation',
-            'post_content' => '[verso_consultation_form]',
-            'post_status' => 'publish',
-            'post_type' => 'page',
-            'post_name' => 'demande-consultation'
-        ]);
+function verso_build_email_body(
+    string $owner_nom, string $owner_prenom, string $owner_email, string $owner_telephone, string $owner_address,
+    string $vet_nom, string $vet_prenom, string $vet_clinique, string $vet_email, string $vet_telephone,
+    string $animal_nom, string $animal_espece, string $animal_race, string $motif, string $uuid
+): string {
+    $body = "Nouvelle demande de consultation reçue\n\n";
+
+    $body .= "═══════════════════════════════════════════\n";
+    $body .= "PROPRIÉTAIRE/CONTACT\n";
+    $body .= "═══════════════════════════════════════════\n";
+    $body .= "Nom: " . $owner_nom . "\n";
+    $body .= "Prénom: " . $owner_prenom . "\n";
+    $body .= "Email: " . $owner_email . "\n";
+    $body .= "Téléphone: " . $owner_telephone . "\n";
+    $body .= "Adresse: " . $owner_address . "\n\n";
+
+    if (!empty($vet_nom)) {
+        $body .= "═══════════════════════════════════════════\n";
+        $body .= "VÉTÉRINAIRE RÉFÉRANT\n";
+        $body .= "═══════════════════════════════════════════\n";
+        $body .= "Nom: " . $vet_nom . "\n";
+        $body .= "Prénom: " . $vet_prenom . "\n";
+        if (!empty($vet_clinique)) {
+            $body .= "Clinique: " . $vet_clinique . "\n";
+        }
+        if (!empty($vet_email)) {
+            $body .= "Email: " . $vet_email . "\n";
+        }
+        if (!empty($vet_telephone)) {
+            $body .= "Téléphone: " . $vet_telephone . "\n";
+        }
+        $body .= "\n";
     }
-});
-?>
+
+    $body .= "═══════════════════════════════════════════\n";
+    $body .= "PATIENT ANIMAL\n";
+    $body .= "═══════════════════════════════════════════\n";
+    $body .= "Nom: " . $animal_nom . "\n";
+    $body .= "Espèce: " . $animal_espece . "\n";
+    if (!empty($animal_race)) {
+        $body .= "Race: " . $animal_race . "\n";
+    }
+    $body .= "\n";
+
+    $body .= "═══════════════════════════════════════════\n";
+    $body .= "MOTIF DE CONSULTATION\n";
+    $body .= "═══════════════════════════════════════════\n";
+    $body .= $motif . "\n\n";
+
+    $body .= "═══════════════════════════════════════════\n";
+    $body .= "MÉTADONNÉES\n";
+    $body .= "═══════════════════════════════════════════\n";
+    $body .= "UUID: " . $uuid . "\n";
+    $body .= "Date: " . current_time('Y-m-d H:i:s') . "\n";
+    $body .= "Site: " . get_site_url() . "\n";
+
+    return $body;
+}
