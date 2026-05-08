@@ -1,218 +1,201 @@
 # Verso Consultation Plugin
 
-WordPress plugin for consultation request forms with file uploads and Verso Vet ERP integration.
+Système simple et décentralisé pour gérer les demandes de consultation:
+- **Formulaire WordPress** simple qui envoie des emails
+- **Dashboard SQLite** pour suivre les demandes
+- **Suivi ERP** sans webhook - statut manuel
 
-## Features
+## ✨ Fonctionnalités
 
-- ✅ Adaptive form (veterinarian vs pet owner)
-- ✅ Multi-file upload support
-- ✅ HMAC signature webhook validation
-- ✅ Bootstrap responsive UI
-- ✅ Email notifications
-- ✅ Vault secret management
+- ✅ Formulaire simple (propriétaire, vétérinaire, animal, consultation)
+- ✅ Email automatique à consultations@verso-vet.com
+- ✅ Dashboard SQLite pour suivi des demandes
+- ✅ Synchronisation emails → SQLite (via cron)
+- ✅ Gestion des statuts (new, reviewed, integrated, archived)
+- ✅ Historique des changements de statut
+- ✅ Export JSON pour ERP
+- ✅ Pas de dépendance WordPress pour le suivi
 
-## Installation
+## 📦 Installation
 
-1. **Upload plugin**
+1. **Copier le plugin**
    ```bash
-   # Via SFTP or WordPress admin
-   scp -r verso-consultation-plugin/ user@verso-vet.com:/var/www/wordpress/wp-content/plugins/
+   cp -r verso-consultation-plugin /var/www/verso-vet.com/wp-content/plugins/
    ```
 
-2. **Activate in WordPress Admin**
-   - Go to Plugins → Installed Plugins
-   - Click "Activate" on "Verso Consultation Form"
-
-3. **Configure Settings**
-   - Go to Settings → Verso Consultation
-   - Enter Vault URL (default: `http://10.0.0.44:8050`)
-   - Enter Vault Token
-   - Enter Skill URL (default: `http://10.0.0.44:8092`)
-   - Save Settings
-
-4. **Add Secrets to Vault**
+2. **Activer dans WordPress**
    ```bash
-   # consultation_webhook_secret (32 random chars for HMAC)
-   curl -s -H "X-Vault-Token: $ONYX_VAULT_TOKEN" \
-     -X POST http://10.0.0.44:8050/vault/consultation_webhook_secret \
-     -d '{"value": "your-random-secret-32-chars"}'
-
-   # consultation_file_secret (32 random chars for file downloads)
-   curl -s -H "X-Vault-Token: $ONYX_VAULT_TOKEN" \
-     -X POST http://10.0.0.44:8050/vault/consultation_file_secret \
-     -d '{"value": "your-random-secret-32-chars"}'
+   wp plugin activate verso-consultation-plugin
    ```
 
-## Usage
+3. **Générer la clé API**
+   ```bash
+   wp option add verso_api_key "$(openssl rand -hex 32)"
+   ```
 
-### Create Consultation Page
+## 🚀 Utilisation
 
-The plugin automatically creates a `/demande-consultation/` page on activation with the shortcode `[verso_consultation_form]`.
+### Page de Consultation
 
-To manually add the form to any page:
-```
-[verso_consultation_form]
-```
+La page est accessible à: `https://verso-vet.com/consultation-refere/`
 
-### Form Sections
+Shortcode: `[verso_consultation_form]`
 
-**1. Submitter Type** (required)
-- Veterinarian referrer
-- Pet owner
+### Sections du Formulaire
 
-**2. Contact Info** (depends on type)
-- For vets: Clinic, email, phone
-- For owners: Name, email, phone
+1. **Propriétaire/Contact** (obligatoire)
+   - Nom, Prénom
+   - Email, Téléphone
+   - Adresse
 
-**3. Animal Info** (required)
-- Name, species, breed
-- Sex, birth date, weight
-- Microchip number
+2. **Vétérinaire Référant** (optionnel)
+   - Nom, Prénom, Clinique
+   - Email, Téléphone
 
-**4. Consultation Details** (required)
-- Specialty (imaging, surgery, orthopedics, etc.)
-- Reason for consultation
-- Urgent status
-- Current treatments
+3. **Animal** (obligatoire)
+   - Nom, Espèce, Race
 
-**5. Documents** (optional)
-- Accepted: PDF, JPG, PNG, TIFF, DICOM
-- Max size: 50 MB total
+4. **Consultation** (obligatoire)
+   - Motif de la demande
 
-## Architecture
+5. **Documents** (optionnel)
+   - PDF, JPG, PNG, GIF, TIFF
+   - Max: 50 MB par fichier
 
-### File Structure
+## 📂 Architecture
+
+### Structure des Fichiers
 ```
 verso-consultation-plugin/
-├── verso-consultation-plugin.php    # Main plugin file
+├── verso-consultation-plugin.php      # Plugin principal
 ├── includes/
-│   ├── class-vault-client.php       # Vault API client
-│   ├── class-form-handler.php       # Form renderer
-│   └── class-webhook-sender.php     # Webhook & submission handler
-├── css/
-│   └── style.css                    # Bootstrap-based styling
-├── js/
-│   └── form.js                      # Form logic and validation
-└── README.md
+│   └── class-file-handler.php         # Endpoints + storage
+├── templates/
+│   ├── template-hero-gradient.txt     # Template Divi gradient
+│   └── template-hero-image.txt        # Template Divi image
+├── create-page.sh                     # Script création pages
+├── README.md                          # Ce fichier
+├── SETUP.md                           # Configuration
+├── DASHBOARD-API.md                   # Documentation API
+└── TEMPLATE-GUIDE.md                  # Guide Divi
 ```
 
-### Data Flow
+### Flux de Données
 
 ```
-WordPress Form
+Utilisateur
     ↓
-AJAX POST /wp-json/verso/v1/consultation
+Formulaire Web [verso_consultation_form]
     ↓
-Webhook Sender
-    ├─ Validate nonce
-    ├─ Upload files to /wp-content/uploads/consultations/{uuid}/
-    ├─ Generate HMAC-SHA256 signature
-    └─ POST to consultation-requests skill (port 8092)
+Email à consultations@verso-vet.com
     ↓
-consultation-requests Skill
-    ├─ Validate HMAC signature
-    ├─ Store in SQLite
-    ├─ Download files from OVH
-    ├─ Send email notification
-    └─ Status: received
+Cron: sync_emails.py (toutes les heures)
+    ↓
+SQLite: consultations.db
+    ↓
+Dashboard CLI (python3 cli.py list/show/status)
+    ↓
+Export JSON pour ERP
 ```
 
-## REST Endpoint
+## 🔌 Interfaces
 
-**POST** `/wp-json/verso/v1/consultation`
+### Formulaire WordPress
+```
+https://verso-vet.com/consultation-refere/
+[verso_consultation_form]
 
-Accepts multipart form data with:
-- All form fields (form-data format)
-- File uploads (field: `fichiers[]`)
-- Nonce token (field: `nonce`)
-
-Response:
-```json
-{
-  "success": true,
-  "message": "Demande envoyée avec succès!",
-  "uuid": "consult_abc123..."
-}
+→ Envoie un email simple à consultations@verso-vet.com
 ```
 
-## Security
+### Dashboard SQLite
 
-### Webhook Validation
-- HMAC-SHA256 signature on request body
-- Header: `X-Verso-Signature`
-- Secret: `consultation_webhook_secret` from Vault
-- Verified by: consultation-requests skill
-
-### File Uploads
-- Extension whitelist: pdf, jpg, jpeg, png, tiff, dcm
-- Size limit: 50 MB per file
-- Stored in: `/wp-content/uploads/consultations/{uuid}/`
-- Served via: consultation-requests skill with HMAC token
-
-### CSRF Protection
-- WordPress nonce validation
-- Form field: `nonce`
-
-## Troubleshooting
-
-### Plugin not activated
-- Check WordPress file permissions
-- Verify PHP version (≥ 7.4)
-- Check error logs in `/wp-content/debug.log`
-
-### Form not showing
-- Verify shortcode: `[verso_consultation_form]`
-- Check page has content type "Page"
-- Clear WordPress cache if using caching plugin
-
-### Webhook errors
-- Check Vault URL in plugin settings
-- Verify Vault token is valid
-- Check consultation-requests skill is running: `curl http://10.0.0.44:8092/health`
-- Check logs: `curl http://10.0.0.44:8092/consultations` (skill API)
-
-### File upload issues
-- Check upload directory permissions: `/wp-content/uploads/consultations/`
-- Verify file size < 50 MB
-- Confirm file type in whitelist
-- Check disk space available
-
-## Development
-
-### Testing locally
 ```bash
-# 1. Ensure plugin is activated
-# 2. Navigate to /demande-consultation/
-# 3. Fill form and submit
-# 4. Check browser console for errors
-# 5. Check WordPress debug log
+cd dashboard
 
-# View logs
-tail -f /var/www/wordpress/wp-content/debug.log
+# Initialiser
+python3 init_db.py
+
+# Synchroniser emails
+python3 sync_emails.py
+
+# Lister les consultations
+python3 cli.py list new              # Nouvelles
+python3 cli.py list integrated       # Intégrées à l'ERP
+
+# Afficher détails
+python3 cli.py show verso-1620000000000-abc123def
+
+# Mettre à jour statut
+python3 cli.py status verso-... integrated "Envoyé à VetoPartner CRM"
+
+# Exporter pour l'ERP
+python3 cli.py export integrated consultations.json
 ```
 
-### Debugging
-Enable WordPress debug mode in `wp-config.php`:
-```php
-define('WP_DEBUG', true);
-define('WP_DEBUG_LOG', true);
-define('WP_DEBUG_DISPLAY', false);
+## 🔐 Sécurité
+
+### Authentification
+- **Public:** Formulaire, upload, suppression (UUID aléatoire = sécurité)
+- **Dashboard:** Clé API dans en-tête `X-Verso-API-Key`
+
+### Validation Fichiers
+- ✅ Whitelist: pdf, jpg, jpeg, png, gif, tiff
+- ✅ Limite: 50 MB par fichier
+- ✅ Protection path traversal avec `realpath()`
+- ✅ Répertoires isolés par UUID
+
+### Données
+- ✅ Sanitisation tous inputs (text, email, textarea)
+- ✅ Escaping outputs
+- ✅ Métadonnées dans posts WordPress
+- ✅ Nettoyage auto répertoires vides
+
+## 🆘 Dépannage
+
+### Formulaire ne s'affiche pas
+- Vérifier shortcode: `[verso_consultation_form]`
+- Vérifier page type = "Page" (pas "Post")
+- Vider le cache si plugin de caching actif
+
+### Email non reçu
+- Vérifier Postfix: `tail -f /var/log/mail.log`
+- Tester: `wp eval 'wp_mail("test@example.com", "Test", "Body");'`
+- Vérifier adresse: consultations@verso-vet.com existe
+
+### Upload échoue
+- Vérifier permissions: `/wp-content/uploads/verso-consultations/`
+- Vérifier taille < 50 MB
+- Vérifier type de fichier (pdf, jpg, png, gif, tiff)
+
+### API retourne 403
+- Vérifier clé API: `wp option get verso_api_key`
+- Regenerate: `wp option delete verso_api_key && wp option add verso_api_key "$(openssl rand -hex 32)"`
+
+### Debug
+```bash
+# Voir les logs WordPress
+tail -f /var/www/verso-vet.com/wp-content/debug.log
+
+# Tester un endpoint
+API_KEY=$(wp option get verso_api_key)
+curl -H "X-Verso-API-Key: $API_KEY" \
+  "https://verso-vet.com/wp-json/verso/v1/consultations?per_page=1"
 ```
 
-### Making changes
-1. Modify PHP files in `includes/`
-2. Update CSS in `css/style.css`
-3. Update JS in `js/form.js`
-4. Changes take effect immediately (no build step)
+## 📚 Documentation
 
-## Support
+- **[SETUP.md](SETUP.md)** - Installation détaillée
+- **[DASHBOARD-API.md](DASHBOARD-API.md)** - Endpoints + exemples
+- **[TEMPLATE-GUIDE.md](TEMPLATE-GUIDE.md)** - Pages Divi
 
-For issues or questions:
-- Check plugin settings are configured correctly
-- Review WordPress error logs
-- Verify consultation-requests skill is running
-- Contact: consultations@verso-vet.com
+## 📝 Support
 
-## License
+- Consultez **SETUP.md** pour configuration
+- Consultez **DASHBOARD-API.md** pour API
+- Console JS (F12) pour erreurs frontend
+- `/var/log/apache2/error.log` pour erreurs serveur
 
-Copyright © 2026 Verso Vet. All rights reserved.
+## 📄 Licence
+
+© 2026 Verso Vet. Tous droits réservés.

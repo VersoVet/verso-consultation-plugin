@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
 // Shortcode pour afficher le formulaire
 add_shortcode('verso_consultation_form', 'verso_render_form');
 
@@ -162,32 +163,12 @@ function verso_render_form() {
             var form = this;
             var msg = $('#verso-message');
 
-            // Créer FormData pour supporter les fichiers
-            var formData = new FormData(form);
+            msg.html('📧 Envoi de la demande...').css('background', '#bbdefb').css('color', '#1565c0').show();
 
-            // Supprimer le nonce car REST API n'en a pas besoin
-            formData.delete('verso_nonce');
-            formData.delete('action');
-
-            // Soumettre à l'endpoint REST API
-            fetch('/wp-json/verso/v1/consultation', {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    msg.html('✅ ' + data.message).css('background', '#c8e6c9').css('color', '#2e7d32').show();
-                    form.reset();
-                    $('#verso-files-list').html('');
-                    setTimeout(() => msg.fadeOut(), 5000);
-                } else {
-                    msg.html('❌ ' + (data.message || 'Erreur')).css('background', '#ffcdd2').css('color', '#c62828').show();
-                }
-            })
-            .catch(error => {
-                msg.html('❌ Erreur de connexion: ' + error.message).css('background', '#ffcdd2').css('color', '#c62828').show();
-            });
+            // Soumettre le formulaire naturellement (avec fichiers)
+            setTimeout(() => {
+                form.submit();
+            }, 1000);
         });
     });
     </script>
@@ -210,6 +191,7 @@ function verso_handle_submit() {
     $owner_prenom = sanitize_text_field($_POST['owner_prenom'] ?? '');
     $owner_email = sanitize_email($_POST['owner_email'] ?? '');
     $owner_telephone = sanitize_text_field($_POST['owner_telephone'] ?? '');
+    $owner_address = sanitize_textarea_field($_POST['owner_address'] ?? '');
     $animal_nom = sanitize_text_field($_POST['animal_nom'] ?? '');
     $animal_espece = sanitize_text_field($_POST['animal_espece'] ?? '');
     $animal_race = sanitize_text_field($_POST['animal_race'] ?? '');
@@ -223,37 +205,42 @@ function verso_handle_submit() {
     // Préparer le contenu de l'email
     $email_subject = sprintf('[Verso Vet] Nouvelle demande - %s (%s)', $animal_nom, $animal_espece);
 
-    $email_body = sprintf(
-        "Nouvelle demande de consultation reçue\n\n" .
-        "PROPRIÉTAIRE/CONTACT:\n" .
-        "Nom: %s\n" .
-        "Prénom: %s\n" .
-        "Email: %s\n" .
-        "Téléphone: %s\n\n" .
-        "PATIENT:\n" .
-        "Nom: %s\n" .
-        "Espèce: %s\n" .
-        "Race: %s\n\n" .
-        "MOTIF DE CONSULTATION:\n" .
-        "%s\n\n" .
-        "VÉTÉRINAIRE RÉFÉRANT (si fourni):\n" .
-        "Nom: %s\n" .
-        "Clinique: %s\n" .
-        "Email: %s\n" .
-        "Téléphone: %s\n",
-        $owner_nom,
-        $owner_prenom,
-        $owner_email,
-        $owner_telephone,
-        $animal_nom,
-        $animal_espece,
-        $animal_race ?: '(non spécifié)',
-        $motif,
-        sanitize_text_field($_POST['vet_nom'] ?? '(non fourni)'),
-        sanitize_text_field($_POST['vet_clinique'] ?? '(non fourni)'),
-        sanitize_email($_POST['vet_email'] ?? '(non fourni)'),
-        sanitize_text_field($_POST['vet_telephone'] ?? '(non fourni)')
-    );
+    $email_body = "Nouvelle demande de consultation reçue\n\n";
+    $email_body .= "═══════════════════════════════════════════\n";
+    $email_body .= "PROPRIÉTAIRE/CONTACT\n";
+    $email_body .= "═══════════════════════════════════════════\n";
+    $email_body .= sprintf("Nom: %s\n", $owner_nom);
+    $email_body .= sprintf("Prénom: %s\n", $owner_prenom);
+    $email_body .= sprintf("Email: %s\n", $owner_email);
+    $email_body .= sprintf("Téléphone: %s\n", $owner_telephone);
+    $email_body .= sprintf("Adresse: %s\n\n", $owner_address);
+
+    $email_body .= "═══════════════════════════════════════════\n";
+    $email_body .= "PATIENT ANIMAL\n";
+    $email_body .= "═══════════════════════════════════════════\n";
+    $email_body .= sprintf("Nom: %s\n", $animal_nom);
+    $email_body .= sprintf("Espèce: %s\n", $animal_espece);
+    $email_body .= sprintf("Race: %s\n\n", $animal_race ?: '(non spécifié)');
+
+    $email_body .= "═══════════════════════════════════════════\n";
+    $email_body .= "MOTIF DE CONSULTATION\n";
+    $email_body .= "═══════════════════════════════════════════\n";
+    $email_body .= sprintf("%s\n\n", $motif);
+
+    if (isset($_POST['vet_nom']) || isset($_POST['vet_email'])) {
+        $email_body .= "═══════════════════════════════════════════\n";
+        $email_body .= "VÉTÉRINAIRE RÉFÉRANT\n";
+        $email_body .= "═══════════════════════════════════════════\n";
+        $email_body .= sprintf("Nom: %s\n", sanitize_text_field($_POST['vet_nom'] ?? '(non fourni)'));
+        $email_body .= sprintf("Prénom: %s\n", sanitize_text_field($_POST['vet_prenom'] ?? '(non fourni)'));
+        $email_body .= sprintf("Clinique: %s\n", sanitize_text_field($_POST['vet_clinique'] ?? '(non fourni)'));
+        $email_body .= sprintf("Email: %s\n", sanitize_email($_POST['vet_email'] ?? '(non fourni)'));
+        $email_body .= sprintf("Téléphone: %s\n\n", sanitize_text_field($_POST['vet_telephone'] ?? '(non fourni)'));
+    }
+
+    $email_body .= "═══════════════════════════════════════════\n";
+    $email_body .= "Demande reçue le: " . current_time('Y-m-d H:i:s') . "\n";
+    $email_body .= "═══════════════════════════════════════════\n";
 
     // Envoyer l'email
     $result = wp_mail('consultations@verso-vet.com', $email_subject, $email_body);
