@@ -1,15 +1,23 @@
 # verso-consultation-plugin - TODO
 
-## Current Status: Ready for Validation & Deployment
+## Current Status: AJAX Handler Fixed - Awaiting Deployment
 
 ### ✅ Completed (2026-05-08)
 
+**Email Pipeline Root Cause & Fix**
+- [x] Identified: OVH shared hosting blocks sendmail from SSH/CLI, allows from PHP-FPM
+- [x] Fixed: Restored WordPress AJAX handler pattern (wp_ajax_verso_submit_consultation)
+- [x] Fixed: Added action parameter to AJAX submission in form.js
+- [x] Fixed: Changed form selector from #verso-consultation-form to #verso-form
+- [x] Updated: imap_monitor.py to parse "[Verso Vet] Demande" subject + JSON attachment
+- [x] Updated: service.py to handle store_consultation_from_json()
+
 **Form Pipeline**
 - [x] Clean form without emojis (4 numbered sections)
-- [x] Form page created at /demande-de-consultation/ with hero image
-- [x] Form submission via POST with verso_action=submit_consultation
-- [x] Email subject format: VERSO_WEBHOOK UUID:... TYPE:consultation ANIMAL:...
-- [x] verso-consultation-plugin.php updated with correct webhook format
+- [x] Form page at /demande-de-consultation/ with jQuery AJAX handler
+- [x] Email subject format: [Verso Vet] Demande {uuid} - {animal} ({espece})
+- [x] verso-consultation-plugin.php with WordPress AJAX handlers
+- [x] js/form.js with proper action parameter appended to FormData
 - [x] All includes files present and functional
 
 **Infrastructure**
@@ -24,55 +32,75 @@
 
 ### ⏳ In Progress (2026-05-08)
 
-**Validation & Deployment**
-- [ ] Forge validation: verso-consultation-plugin
-- [ ] Forge validation: consultation-requests skill
-- [ ] Deploy verso-consultation-plugin via script or Forge
-- [ ] Deploy consultation-requests skill update
-- [ ] End-to-end test: form submission → email → dashboard
+**Critical Fix - AJAX Action Parameter**
+- [x] Identified root cause: form.js not sending 'action' parameter to WordPress AJAX
+- [x] Fixed: form.js now appends `formData.append('action', 'verso_submit_consultation')`
+- [x] Committed: Code change ready in dev branch
+- [ ] DEPLOYMENT BLOCKED: Cannot use direct SSH/FPT per CLAUDE.md constraints
+- [ ] Need: Alternative deployment method (REST API, wp-cli, or manual admin panel update)
 
-### 🎯 Next Steps (After Validation)
+### 🎯 Deployment Options (Choose One)
 
-**Step 1: Validate with Forge**
+**Option A: WordPress Admin Panel (Recommended)**
+1. Login to https://verso-vet.com/wp-admin (user: onyx)
+2. Go to: Plugins → verso-consultation-plugin
+3. Manually upload/update js/form.js (add action parameter)
+4. Test: Submit form and check browser console for successful AJAX call
+
+**Option B: WordPress REST API + Plugin Update**
+1. Export updated verso-consultation-plugin.php + js/form.js
+2. Create ZIP file
+3. Use WP REST API to upload plugin update
+4. Activate via admin panel
+5. Test endpoint
+
+**Option C: Contact OVH Support**
+1. Request managed deployment of updated plugin files
+2. Provide deployment script and configuration
+3. Verify deployment succeeded
+
+**Option D: Setup wp-cli**
+1. Configure wp-cli on OVH server
+2. Use wp-cli to activate plugins programmatically
+3. Deploy via script that uses wp-cli instead of SSH
+
+### 🎯 After Deployment: Test Pipeline
+
+**Step 1: Test AJAX Endpoint**
 ```bash
-# Validate verso-consultation-plugin
-curl -X POST http://10.0.0.13:4080/api/validate/verso-consultation-plugin
-
-# Validate consultation-requests
-curl -X POST http://10.0.0.13:4080/api/validate/consultation-requests
+curl -s -X POST "https://verso-vet.com/wp-admin/admin-ajax.php" \
+  -d "action=verso_submit_consultation" \
+  -d "owner_nom=Dupont" \
+  -d "owner_prenom=Jean" \
+  -d "owner_email=test@verso-vet.com" \
+  -d "owner_telephone=0612345678" \
+  -d "animal_nom=Rex" \
+  -d "animal_espece=Chien" \
+  -d "motif=Test" | jq .
 ```
+Expected: `{"success":true,"data":{"message":"...","uuid":"verso-..."}}`
 
-**Step 2: Deploy**
-```bash
-# Deploy verso-consultation-plugin
-cd /home/onyx/projects/skills/verso-consultation-plugin
-./deploy.sh
-
-# OR via Forge
-forge deploy verso-consultation-plugin
-```
-
-**Step 3: Test Pipeline**
+**Step 2: Full Browser Test**
 ```bash
 # 1. Visit form
 https://verso-vet.com/demande-de-consultation/
 
 # 2. Submit test data:
-# Nom: Dupont
-# Prénom: Jean
-# Email: jp@test.local
+# Nom: Dupont, Prénom: Jean
+# Email: test@verso-vet.com
 # Téléphone: +33612345678
-# Adresse: 123 Rue Test
 # Animal: Rex (Chien)
-# Motif: Test submission après déploiement
+# Motif: Test submission
 
-# 3. Wait 1 minute for IMAP sync
+# 3. Wait 60s for email delivery
 
-# 4. Check dashboard
+# 4. Check IMAP monitor
+curl -s http://10.0.0.44:8092/cron
+
+# 5. Verify dashboard
 http://10.0.0.44:8092/dashboard
-
-# Expected: 1 Received consultation visible
 ```
+Expected: Consultation appears as "Received" status
 
 ### 🚀 Post-Deployment Checklist
 
