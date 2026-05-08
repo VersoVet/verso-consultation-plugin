@@ -108,10 +108,13 @@ curl -s -X POST "https://verso-vet.com/wp-admin/admin-ajax.php" \
 
 ### Email Details
 ```
-From:    {owner_email}
+From:    Verso Vet <consultations@verso-vet.com>
+Reply-To: {owner_email}
 To:      consultations@verso-vet.com
 Subject: [Verso Vet] Demande {uuid} - {animal_nom} ({animal_espece})
 ```
+
+**Note**: From: header is fixed to domain address (OVH SPF/DKIM requirement). Reply-To preserves client email for direct responses.
 
 ### Email Body (Plain Text)
 ```
