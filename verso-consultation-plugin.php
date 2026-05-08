@@ -82,7 +82,7 @@ function verso_handle_consultation_ajax(): void {
     $subject = "[Verso Vet] Demande {$uuid} - {$animal_nom} ({$animal_espece})";
     $headers = [
         'Content-Type: text/plain; charset=UTF-8',
-        'From: ' . sanitize_email($owner_email),
+        'From: Verso Vet <consultations@verso-vet.com>',
         'Reply-To: ' . sanitize_email($owner_email),
     ];
 
