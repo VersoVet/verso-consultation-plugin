@@ -1,0 +1,65 @@
+name: Deploy verso-consultation-plugin
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+
+      - name: Create plugin ZIP
+        run: |
+          mkdir -p dist/verso-consultation-plugin
+          cp verso-consultation-plugin.php dist/verso-consultation-plugin/
+          cp -r js/ dist/verso-consultation-plugin/
+          cp -r css/ dist/verso-consultation-plugin/
+          cp readme.txt dist/verso-consultation-plugin/ 2>/dev/null || echo "# verso-consultation-plugin" > dist/verso-consultation-plugin/readme.txt
+
+          cd dist && zip -r verso-consultation-plugin.zip verso-consultation-plugin/
+          ls -lh verso-consultation-plugin.zip
+
+      - name: Deploy to verso-vet.com via WP-CLI
+        env:
+          WORDPRESS_HOST: ${{ secrets.WORDPRESS_HOST }}
+          WORDPRESS_USER: ${{ secrets.WORDPRESS_USER }}
+          WORDPRESS_PASSWORD: ${{ secrets.WORDPRESS_PASSWORD }}
+          WORDPRESS_PATH: ${{ secrets.WORDPRESS_PATH }}
+        run: |
+          echo "Deploying verso-consultation-plugin..."
+
+          # Install WP-CLI if not available
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+
+          # Remote deploy via SSH + WP-CLI
+          ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd $WORDPRESS_PATH && \
+             php wp-cli.phar plugin delete verso-consultation-plugin 2>/dev/null || true && \
+             php wp-cli.phar plugin install $(pwd)/dist/verso-consultation-plugin.zip --activate"
+
+          echo "✓ Deployment complete"
+
+      - name: Run tests
+        run: |
+          php -l verso-consultation-plugin.php
+          echo "✓ PHP syntax check passed"
+
+      - name: Create release
+        if: success()
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          files: dist/verso-consultation-plugin.zip
