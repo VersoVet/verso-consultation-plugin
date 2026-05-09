@@ -23,6 +23,12 @@ WP_ADMIN_USER="${WP_ADMIN_USER:-onyx}"
 PLUGIN_SLUG="verso-consultation-plugin"
 PLUGIN_ZIP="verso-consultation-plugin.zip"
 
+# Get credentials from Vault (optional - for automation)
+if [ ! -z "$ONYX_VAULT_TOKEN" ]; then
+  WP_APP_PASSWORD=$(curl -s -H "X-Vault-Token: $ONYX_VAULT_TOKEN" http://10.0.0.44:8050/vault/wordpress_credentials | \
+    python3 -c "import sys, json; data=json.load(sys.stdin); creds=json.loads(data['value']); print(creds['app_password'])" 2>/dev/null)
+fi
+
 # Couleurs
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
