@@ -21,29 +21,46 @@ add_action('wp_ajax_verso_submit_consultation', 'verso_handle_consultation_ajax'
 add_action('wp_ajax_nopriv_verso_submit_consultation', 'verso_handle_consultation_ajax');
 
 // Initialize upload directory with security (called on activation + lazy init)
-function verso_init_upload_dir(): void {
+function verso_init_upload_dir() {
     $upload_dir = wp_upload_dir();
+    if (!isset($upload_dir['basedir']) || empty($upload_dir['basedir'])) {
+        return; // Upload dir not available
+    }
+
     $verso_dir = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . VERSO_UPLOAD_SUBDIR;
 
     if (!is_dir($verso_dir)) {
-        wp_mkdir_p($verso_dir);
+        // Create directory
+        $created = wp_mkdir_p($verso_dir);
+        if (!$created || !is_dir($verso_dir)) {
+            error_log('verso-consultation: Failed to create directory ' . $verso_dir);
+            return;
+        }
 
-        // Write .htaccess to deny HTTP access
-        file_put_contents(
+        // Write .htaccess (suppress errors, continue if fails)
+        $htaccess_content = "deny from all\nOptions -Indexes\n";
+        $htaccess_result = @file_put_contents(
             $verso_dir . DIRECTORY_SEPARATOR . '.htaccess',
-            "deny from all\nOptions -Indexes\n"
+            $htaccess_content
         );
+        if ($htaccess_result === false) {
+            error_log('verso-consultation: Failed to write .htaccess');
+        }
 
-        // Write index.php stub for silence
-        file_put_contents(
+        // Write index.php stub (suppress errors, continue if fails)
+        $index_content = "<?php\n// Silence is golden\n";
+        $index_result = @file_put_contents(
             $verso_dir . DIRECTORY_SEPARATOR . 'index.php',
-            '<?php // Silence is golden.'
+            $index_content
         );
+        if ($index_result === false) {
+            error_log('verso-consultation: Failed to write index.php');
+        }
     }
 }
 
 // Sanitize uploaded filename to prevent traversal attacks
-function verso_sanitize_filename(string $filename): string {
+function verso_sanitize_filename($filename) {
     $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
     $allowed_exts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx'];
 
@@ -59,7 +76,7 @@ function verso_sanitize_filename(string $filename): string {
 }
 
 // Safely delete consultation upload directory (strict path confinement)
-function verso_safe_delete_consultation_dir(string $uuid): void {
+function verso_safe_delete_consultation_dir($uuid) {
     // Step 1: Validate UUID format (regex prevents ../../../etc/passwd injection)
     if (!preg_match('/^verso-\d{10}-[a-f0-9]{8}$/', $uuid)) {
         return; // Invalid UUID = absolute refusal
@@ -95,15 +112,12 @@ function verso_safe_delete_consultation_dir(string $uuid): void {
 }
 
 // Process and validate file uploads
-function verso_process_file_uploads(string $uuid): array {
-    $uploaded_files = [];
+function verso_process_file_uploads($uuid) {
+    $uploaded_files = array();
 
     if (!isset($_FILES['fichiers'])) {
         return $uploaded_files;
     }
-
-    // Initialize upload directory
-    verso_init_upload_dir();
 
     $upload_dir = wp_upload_dir();
     $verso_dir = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . VERSO_UPLOAD_SUBDIR . DIRECTORY_SEPARATOR . $uuid;
@@ -181,7 +195,7 @@ function verso_process_file_uploads(string $uuid): array {
     return $uploaded_files;
 }
 
-function verso_handle_consultation_ajax(): void {
+function verso_handle_consultation_ajax() {
     // Get and sanitize POST data
     $owner_nom = isset($_POST['owner_nom']) ? sanitize_text_field($_POST['owner_nom']) : '';
     $owner_prenom = isset($_POST['owner_prenom']) ? sanitize_text_field($_POST['owner_prenom']) : '';
@@ -293,10 +307,10 @@ function verso_handle_consultation_ajax(): void {
 }
 
 function verso_store_consultation_in_db(
-    string $uuid, string $owner_nom, string $owner_prenom, string $owner_email, string $owner_telephone, string $owner_address,
-    string $vet_nom, string $vet_prenom, string $vet_clinique, string $vet_email, string $vet_telephone,
-    string $animal_nom, string $animal_espece, string $animal_race, string $motif
-): void {
+    $uuid, $owner_nom, $owner_prenom, $owner_email, $owner_telephone, $owner_address,
+    $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone,
+    $animal_nom, $animal_espece, $animal_race, $motif
+) {
     global $wpdb;
 
     // Create table if it doesn't exist
@@ -350,10 +364,10 @@ function verso_store_consultation_in_db(
 }
 
 function verso_build_email_body(
-    string $owner_nom, string $owner_prenom, string $owner_email, string $owner_telephone, string $owner_address,
-    string $vet_nom, string $vet_prenom, string $vet_clinique, string $vet_email, string $vet_telephone,
-    string $animal_nom, string $animal_espece, string $animal_race, string $motif, string $uuid, array $uploaded_files = []
-): string {
+    $owner_nom, $owner_prenom, $owner_email, $owner_telephone, $owner_address,
+    $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone,
+    $animal_nom, $animal_espece, $animal_race, $motif, $uuid, $uploaded_files = []
+) {
     $body = "Nouvelle demande de consultation\n\n";
     $body .= "Référence : {$uuid}\n";
     $body .= "Date       : " . current_time('Y-m-d H:i:s') . "\n\n";
@@ -414,7 +428,7 @@ function verso_build_email_body(
 // Create tables and upload directory on plugin activation
 register_activation_hook(__FILE__, 'verso_activate_plugin');
 
-function verso_activate_plugin(): void {
+function verso_activate_plugin() {
     global $wpdb;
 
     // Initialize upload directory with security
@@ -453,7 +467,7 @@ function verso_activate_plugin(): void {
 // Enqueue form JavaScript and styles
 add_action('wp_enqueue_scripts', 'verso_enqueue_scripts');
 
-function verso_enqueue_scripts(): void {
+function verso_enqueue_scripts() {
     // Only enqueue on the consultation page
     if (!is_page('demande-de-consultation') && !is_page('demande-consultation')) {
         return;
