@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Verso Consultation Form
- * Description: Professional consultation form with email notifications
- * Version: 3.0.0
+ * Description: Professional consultation form with email notifications and secure file uploads
+ * Version: 3.1.0
  * Author: Verso Vet
  */
 
@@ -10,9 +10,176 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Upload directory configuration
+define('VERSO_UPLOAD_SUBDIR', 'verso-consultations');
+const VERSO_MAX_FILES = 5;
+const VERSO_MAX_FILE_SIZE = 10485760; // 10 MB
+const VERSO_MAX_TOTAL_SIZE = 31457280; // 30 MB
+
 // Register AJAX handlers (for both logged in and non-logged in users)
 add_action('wp_ajax_verso_submit_consultation', 'verso_handle_consultation_ajax');
 add_action('wp_ajax_nopriv_verso_submit_consultation', 'verso_handle_consultation_ajax');
+
+// Initialize upload directory with security (called on activation + lazy init)
+function verso_init_upload_dir(): void {
+    $upload_dir = wp_upload_dir();
+    $verso_dir = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . VERSO_UPLOAD_SUBDIR;
+
+    if (!is_dir($verso_dir)) {
+        wp_mkdir_p($verso_dir);
+
+        // Write .htaccess to deny HTTP access
+        file_put_contents(
+            $verso_dir . DIRECTORY_SEPARATOR . '.htaccess',
+            "deny from all\nOptions -Indexes\n"
+        );
+
+        // Write index.php stub for silence
+        file_put_contents(
+            $verso_dir . DIRECTORY_SEPARATOR . 'index.php',
+            '<?php // Silence is golden.'
+        );
+    }
+}
+
+// Sanitize uploaded filename to prevent traversal attacks
+function verso_sanitize_filename(string $filename): string {
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    $allowed_exts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx'];
+
+    if (!in_array($ext, $allowed_exts, true)) {
+        $ext = 'bin';
+    }
+
+    $base = pathinfo($filename, PATHINFO_FILENAME);
+    $base = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $base);
+    $base = substr($base, 0, 50);
+
+    return $base . '.' . $ext;
+}
+
+// Safely delete consultation upload directory (strict path confinement)
+function verso_safe_delete_consultation_dir(string $uuid): void {
+    // Step 1: Validate UUID format (regex prevents ../../../etc/passwd injection)
+    if (!preg_match('/^verso-\d{10}-[a-f0-9]{8}$/', $uuid)) {
+        return; // Invalid UUID = absolute refusal
+    }
+
+    $upload_dir = wp_upload_dir();
+    $base_dir = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . VERSO_UPLOAD_SUBDIR;
+    $target_dir = $base_dir . DIRECTORY_SEPARATOR . $uuid;
+
+    // Step 2: Resolve real paths (eliminates symlinks and ..)
+    $real_base = realpath($base_dir);
+    $real_target = realpath($target_dir);
+
+    if ($real_base === false || $real_target === false) {
+        return; // Non-existent path = no action
+    }
+
+    // Step 3: Strict confinement check (prevent traversal)
+    if (strpos($real_target, $real_base . DIRECTORY_SEPARATOR) !== 0) {
+        return; // Traversal attempt detected = absolute refusal
+    }
+
+    // Step 4: Delete files only (no recursive subdirs)
+    $files = glob($real_target . DIRECTORY_SEPARATOR . '*');
+    if ($files !== false) {
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
+    }
+    @rmdir($real_target);
+}
+
+// Process and validate file uploads
+function verso_process_file_uploads(string $uuid): array {
+    $uploaded_files = [];
+
+    if (!isset($_FILES['fichiers'])) {
+        return $uploaded_files;
+    }
+
+    // Initialize upload directory
+    verso_init_upload_dir();
+
+    $upload_dir = wp_upload_dir();
+    $verso_dir = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . VERSO_UPLOAD_SUBDIR . DIRECTORY_SEPARATOR . $uuid;
+
+    // Validate upload count
+    $file_count = count($_FILES['fichiers']['name']);
+    if ($file_count > VERSO_MAX_FILES) {
+        wp_send_json_error('Trop de fichiers (maximum ' . VERSO_MAX_FILES . ')');
+    }
+
+    // Allowed MIME types
+    $allowed_mimes = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ];
+
+    $total_size = 0;
+
+    for ($i = 0; $i < $file_count; ++$i) {
+        $tmp_name = $_FILES['fichiers']['tmp_name'][$i];
+        $name = $_FILES['fichiers']['name'][$i];
+        $size = $_FILES['fichiers']['size'][$i];
+
+        // Skip empty slots
+        if (empty($tmp_name) || empty($name)) {
+            continue;
+        }
+
+        // Validate individual file size
+        if ($size > VERSO_MAX_FILE_SIZE) {
+            wp_send_json_error('Fichier trop volumineux : ' . $name . ' (maximum 10 MB)');
+        }
+
+        // Validate total size
+        $total_size += $size;
+        if ($total_size > VERSO_MAX_TOTAL_SIZE) {
+            wp_send_json_error('Taille totale excessive (maximum 30 MB)');
+        }
+
+        // Validate MIME type
+        $mime_type = mime_content_type($tmp_name);
+        if (!in_array($mime_type, $allowed_mimes, true)) {
+            wp_send_json_error('Type de fichier non autorisé : ' . $name);
+        }
+
+        // Create UUID directory if needed
+        if (!is_dir($verso_dir)) {
+            wp_mkdir_p($verso_dir);
+        }
+
+        // Sanitize filename and add index for uniqueness
+        $safe_name = verso_sanitize_filename($name);
+        $safe_name = pathinfo($safe_name, PATHINFO_FILENAME) . '_' . $i . '.' . pathinfo($safe_name, PATHINFO_EXTENSION);
+
+        // Move uploaded file
+        $dest_path = $verso_dir . DIRECTORY_SEPARATOR . $safe_name;
+        if (!move_uploaded_file($tmp_name, $dest_path)) {
+            wp_send_json_error('Erreur lors de l\'enregistrement du fichier : ' . $name);
+        }
+
+        // Record file metadata
+        $uploaded_files[] = [
+            'original_name' => $name,
+            'stored_name' => $safe_name,
+            'mime_type' => $mime_type,
+            'size' => $size,
+        ];
+    }
+
+    return $uploaded_files;
+}
 
 function verso_handle_consultation_ajax(): void {
     // Get and sanitize POST data
@@ -45,14 +212,17 @@ function verso_handle_consultation_ajax(): void {
     // Generate UUID
     $uuid = 'verso-' . time() . '-' . substr(md5(uniqid()), 0, 8);
 
+    // Process file uploads (validates and returns file metadata)
+    $uploaded_files = verso_process_file_uploads($uuid);
+
     // Build email content
     $email_body = verso_build_email_body(
         $owner_nom, $owner_prenom, $owner_email, $owner_telephone, $owner_address,
         $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone,
-        $animal_nom, $animal_espece, $animal_race, $motif, $uuid
+        $animal_nom, $animal_espece, $animal_race, $motif, $uuid, $uploaded_files
     );
 
-    // Build JSON attachment data
+    // Build JSON attachment data with file metadata (NEW v3.1.0)
     $consultation_data = json_encode([
         'uuid'            => $uuid,
         'submitted_at'    => current_time('c'),
@@ -70,6 +240,7 @@ function verso_handle_consultation_ajax(): void {
         'animal_espece'   => $animal_espece,
         'animal_race'     => $animal_race,
         'motif'           => $motif,
+        'files'           => $uploaded_files,
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
     // Write JSON to temp file in uploads dir
@@ -77,7 +248,19 @@ function verso_handle_consultation_ajax(): void {
     $json_path = $upload_dir['basedir'] . '/verso_' . $uuid . '.json';
     file_put_contents($json_path, $consultation_data);
 
-    // Send email with attachment (5th wp_mail param)
+    // Build email attachments array (consultation.json + uploaded files)
+    $attachments = [$json_path];
+    if (!empty($uploaded_files)) {
+        $verso_files_dir = $upload_dir['basedir'] . DIRECTORY_SEPARATOR . VERSO_UPLOAD_SUBDIR . DIRECTORY_SEPARATOR . $uuid;
+        foreach ($uploaded_files as $file_info) {
+            $file_path = $verso_files_dir . DIRECTORY_SEPARATOR . $file_info['stored_name'];
+            if (is_file($file_path)) {
+                $attachments[] = $file_path;
+            }
+        }
+    }
+
+    // Send email with all attachments
     $to = 'consultations@verso-vet.com';
     $subject = "[Verso Vet] Demande {$uuid} - {$animal_nom} ({$animal_espece})";
     $headers = [
@@ -86,10 +269,13 @@ function verso_handle_consultation_ajax(): void {
         'Reply-To: ' . sanitize_email($owner_email),
     ];
 
-    $result = wp_mail($to, $subject, $email_body, $headers, [$json_path]);
+    $result = wp_mail($to, $subject, $email_body, $headers, $attachments);
 
-    // Delete temp file
+    // Delete temp JSON file
     @unlink($json_path);
+
+    // Safely delete consultation upload directory (cleanup regardless of email result)
+    verso_safe_delete_consultation_dir($uuid);
 
     if ($result) {
         // Store data in database
@@ -166,7 +352,7 @@ function verso_store_consultation_in_db(
 function verso_build_email_body(
     string $owner_nom, string $owner_prenom, string $owner_email, string $owner_telephone, string $owner_address,
     string $vet_nom, string $vet_prenom, string $vet_clinique, string $vet_email, string $vet_telephone,
-    string $animal_nom, string $animal_espece, string $animal_race, string $motif, string $uuid
+    string $animal_nom, string $animal_espece, string $animal_race, string $motif, string $uuid, array $uploaded_files = []
 ): string {
     $body = "Nouvelle demande de consultation\n\n";
     $body .= "Référence : {$uuid}\n";
@@ -205,19 +391,36 @@ function verso_build_email_body(
     $body .= "─── MOTIF DE CONSULTATION ─────────────────\n";
     $body .= $motif . "\n\n";
 
+    // List uploaded files (NEW v3.1.0)
+    if (!empty($uploaded_files)) {
+        $body .= "─── DOCUMENTS JOINTS ──────────────────────\n";
+        foreach ($uploaded_files as $file) {
+            $size_kb = round($file['size'] / 1024, 1);
+            $body .= "• " . $file['original_name'] . " ({$size_kb} KB)\n";
+        }
+        $body .= "\n";
+    }
+
     $body .= "───────────────────────────────────────────\n";
-    $body .= "Pièce jointe : consultation.json\n";
-    $body .= "(données complètes pour traitement automatique)\n";
+    $body .= "Pièces jointes : consultation.json";
+    if (!empty($uploaded_files)) {
+        $body .= " + " . count($uploaded_files) . " fichier(s)";
+    }
+    $body .= "\n(données complètes pour traitement automatique)\n";
 
     return $body;
 }
 
-// Create tables on plugin activation
+// Create tables and upload directory on plugin activation
 register_activation_hook(__FILE__, 'verso_activate_plugin');
 
 function verso_activate_plugin(): void {
     global $wpdb;
 
+    // Initialize upload directory with security
+    verso_init_upload_dir();
+
+    // Create database table
     $charset_collate = $wpdb->get_charset_collate();
     $table_name = $wpdb->prefix . 'verso_consultations';
 
@@ -264,7 +467,7 @@ function verso_enqueue_scripts(): void {
         'verso-form-handler',
         plugin_dir_url(__FILE__) . 'js/form.js',
         ['jquery'],
-        '3.0.0',
+        '3.1.0',
         true
     );
 
@@ -279,6 +482,6 @@ function verso_enqueue_scripts(): void {
         'verso-form-style',
         plugin_dir_url(__FILE__) . 'css/style.css',
         [],
-        '3.0.0'
+        '3.1.0'
     );
 }
