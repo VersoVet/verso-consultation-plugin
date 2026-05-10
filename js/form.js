@@ -4,6 +4,7 @@
 
 jQuery(document).ready(function ($) {
     const messageEl = $('#form-message');
+    let selectedFiles = [];
 
     // Initialize: Owner fields are always required, Vet fields are optional
     $(document).ready(function () {
@@ -14,68 +15,205 @@ jQuery(document).ready(function ($) {
         $('#vet-section input[name], #vet-section select[name]').prop('required', false);
     });
 
+    // File management UI
+    $('#add-file-btn').on('click', function (e) {
+        e.preventDefault();
+        $('#fichiers-hidden').click();
+    });
+
     // Handle file input changes
-    $('#fichiers').on('change', function () {
-        const files = this.files;
+    $('#fichiers-hidden').on('change', function () {
+        const newFiles = Array.from(this.files);
+
+        if (newFiles.length === 0) return;
+
+        newFiles.forEach(function (file) {
+            addFileToList(file);
+        });
+
+        // Reset the hidden input
+        $(this).val('');
+        updateActualFileInput();
+    });
+
+    /**
+     * Add file to selected files list with progress animation
+     */
+    function addFileToList(file) {
+        const maxFiles = 10;
+        const maxSizePerFile = 5 * 1024 * 1024; // 5 MB
+
+        // Check if we already have this file
+        if (selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+            showMessage('Ce fichier est déjà sélectionné', 'error');
+            return;
+        }
+
+        // Check file count
+        if (selectedFiles.length >= maxFiles) {
+            showMessage('❌ Vous avez atteint le maximum de ' + maxFiles + ' fichiers', 'error');
+            return;
+        }
+
+        // Check file size
+        if (file.size > maxSizePerFile) {
+            showMessage('❌ Le fichier "' + file.name + '" dépasse 5 MB', 'error');
+            return;
+        }
+
+        // Add to selected files
+        const fileIndex = selectedFiles.length;
+        selectedFiles.push(file);
+
+        // Show file list container
+        $('#file-list').show();
+
+        // Simulate progress
+        const fileId = 'file-item-' + fileIndex;
+        const fileHtml = `
+            <div id="${fileId}" style="margin-bottom:12px; padding:12px; background:white; border-left:4px solid #e74c3c; border-radius:2px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="flex:1;">
+                        <div style="font-weight:600; color:#333; word-break:break-word;">📄 ${escapeHtml(file.name)}</div>
+                        <div style="font-size:0.85rem; color:#666;">${formatFileSize(file.size)}</div>
+                    </div>
+                    <button type="button" class="remove-file-btn" data-index="${fileIndex}" style="background-color:#f0f0f0; color:#d32f2f; padding:6px 12px; border:none; border-radius:2px; cursor:pointer; font-size:12px; font-weight:600; white-space:nowrap; margin-left:10px;">✕ Retirer</button>
+                </div>
+                <div style="width:100%; height:4px; background:#e0e0e0; border-radius:2px; overflow:hidden;">
+                    <div class="progress-bar" style="width:0%; height:100%; background:#e74c3c; transition:width 0.1s linear;"></div>
+                </div>
+            </div>
+        `;
+
+        $('#file-list').append(fileHtml);
+
+        // Simulate progress bar
+        const progressBar = $('#' + fileId + ' .progress-bar');
+        let progress = 0;
+        const interval = setInterval(function () {
+            progress += Math.random() * 30;
+            if (progress > 100) progress = 100;
+            progressBar.css('width', progress + '%');
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(function () {
+                    // After progress completes, show as done
+                    $('#' + fileId).css('border-left-color', '#4caf50');
+                    progressBar.css('background-color', '#4caf50');
+                }, 300);
+            }
+        }, 100);
+
+        // Handle remove button click
+        $(document).off('click', '.remove-file-btn[data-index="' + fileIndex + '"]');
+        $(document).on('click', '.remove-file-btn[data-index="' + fileIndex + '"]', function (e) {
+            e.preventDefault();
+            removeFileAtIndex(fileIndex);
+        });
+
+        updateFilePreview();
+    }
+
+    /**
+     * Remove file at given index
+     */
+    function removeFileAtIndex(index) {
+        selectedFiles.splice(index, 1);
+
+        // Rebuild file list
+        rebuildFileList();
+        updateActualFileInput();
+        updateFilePreview();
+
+        if (selectedFiles.length === 0) {
+            $('#file-list').hide();
+        }
+    }
+
+    /**
+     * Rebuild entire file list
+     */
+    function rebuildFileList() {
+        $('#file-list').empty();
+
+        if (selectedFiles.length === 0) {
+            $('#file-list').hide();
+            return;
+        }
+
+        selectedFiles.forEach(function (file, index) {
+            const fileId = 'file-item-' + index;
+            const fileHtml = `
+                <div id="${fileId}" style="margin-bottom:12px; padding:12px; background:white; border-left:4px solid #4caf50; border-radius:2px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div style="flex:1;">
+                            <div style="font-weight:600; color:#333; word-break:break-word;">✓ ${escapeHtml(file.name)}</div>
+                            <div style="font-size:0.85rem; color:#666;">${formatFileSize(file.size)}</div>
+                        </div>
+                        <button type="button" class="remove-file-btn" data-index="${index}" style="background-color:#f0f0f0; color:#d32f2f; padding:6px 12px; border:none; border-radius:2px; cursor:pointer; font-size:12px; font-weight:600; white-space:nowrap; margin-left:10px;">✕ Retirer</button>
+                    </div>
+                    <div style="width:100%; height:4px; background:#e0e0e0; border-radius:2px; overflow:hidden;">
+                        <div class="progress-bar" style="width:100%; height:100%; background:#4caf50;"></div>
+                    </div>
+                </div>
+            `;
+            $('#file-list').append(fileHtml);
+
+            $(document).off('click', '.remove-file-btn[data-index="' + index + '"]');
+            $(document).on('click', '.remove-file-btn[data-index="' + index + '"]', function (e) {
+                e.preventDefault();
+                removeFileAtIndex(index);
+            });
+        });
+
+        $('#file-list').show();
+    }
+
+    /**
+     * Update actual file input with current selected files
+     */
+    function updateActualFileInput() {
+        if (selectedFiles.length === 0) {
+            $('#fichiers').val('');
+            return;
+        }
+
+        // Use DataTransfer to create a FileList-like object
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(function (file) {
+            dataTransfer.items.add(file);
+        });
+        document.getElementById('fichiers').files = dataTransfer.files;
+    }
+
+    /**
+     * Update file preview summary
+     */
+    function updateFilePreview() {
         const preview = $('#file-preview');
         preview.empty();
 
-        if (files.length === 0) {
+        if (selectedFiles.length === 0) {
             preview.html('');
             return;
         }
 
-        const maxFiles = 10;
-        const maxSizePerFile = 5 * 1024 * 1024; // 5 MB
-        const maxTotalSize = 50 * 1024 * 1024; // 50 MB
         let totalSize = 0;
-        let hasErrors = false;
-
-        // Check file count
-        if (files.length > maxFiles) {
-            preview.append(
-                '<div style="color: #d32f2f; font-size: 0.9rem; margin-bottom: 10px;">❌ Maximum ' + maxFiles + ' fichiers autorisés. Vous en avez sélectionné ' + files.length + '</div>'
-            );
-            hasErrors = true;
-        }
-
-        $.each(files, function (i, file) {
+        selectedFiles.forEach(function (file) {
             totalSize += file.size;
-            const size = formatFileSize(file.size);
-
-            // Check individual file size
-            const isOversized = file.size > maxSizePerFile;
-            const sizeColor = isOversized ? '#d32f2f' : '#666';
-            const icon = isOversized ? '⚠️' : '📄';
-
-            const fileHtml = `
-                <div class="file-item" style="display: flex; align-items: center; gap: 10px; padding: 8px; background: #f5f5f5; border-radius: 4px; margin-bottom: 8px; border-left: 3px solid ${isOversized ? '#d32f2f' : '#1c2445'};">
-                    <span style="font-size: 16px;">${icon}</span>
-                    <span class="file-name" style="flex: 1; word-break: break-word; color: #333;">${escapeHtml(file.name)}</span>
-                    <span class="file-size" style="font-size: 0.85rem; color: ${sizeColor}; font-weight: 600; white-space: nowrap;">${size}</span>
-                </div>
-            `;
-            preview.append(fileHtml);
-
-            if (isOversized) {
-                hasErrors = true;
-            }
         });
 
-        // Show warnings
-        if (totalSize > maxTotalSize) {
-            preview.append(
-                '<div style="color: #d32f2f; font-size: 0.9rem; margin-top: 10px; padding: 8px; background: #fff3cd; border-left: 3px solid #d32f2f; border-radius: 2px;">⚠️ Taille totale dépasse 50 MB</div>'
-            );
-            hasErrors = true;
-        }
+        const maxTotalSize = 50 * 1024 * 1024; // 50 MB
+        const summary = `
+            <div style="padding:10px; background:#e3f2fd; border-left:3px solid #1c2445; border-radius:2px; color:#333; font-size:0.9rem;">
+                <strong>✓ ${selectedFiles.length} fichier(s)</strong> sélectionné(s) (${formatFileSize(totalSize)})
+                ${totalSize > maxTotalSize ? '<br/><span style="color:#d32f2f;">❌ Taille totale dépasse 50 MB</span>' : ''}
+            </div>
+        `;
+        preview.append(summary);
+    }
 
-        if (hasErrors && files.length <= maxFiles) {
-            preview.append(
-                '<div style="color: #d32f2f; font-size: 0.9rem; margin-top: 10px;">❌ Certains fichiers dépassent 5 MB - Veuillez corriger avant envoi</div>'
-            );
-        }
-    });
 
     // Form submission via button click (no form tag)
     $(document).on('click', '#verso-submit-btn', function (e) {

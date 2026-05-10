@@ -603,10 +603,15 @@ function verso_create_consultation_page() {
 <div class="verso-row verso-row-full">
   <div>
     <label class="verso-label">Fichiers (max 10, 5 MB chacun)</label>
-    <input type="file" id="fichiers" name="fichiers" multiple class="verso-input">
+    <input type="file" id="fichiers-hidden" style="display:none;" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx">
+    <button type="button" id="add-file-btn" style="background-color:#e74c3c; color:white; padding:12px 24px; font-weight:600; border:none; border-radius:4px; cursor:pointer; font-size:14px; margin-bottom:15px; text-transform:uppercase;">+ Ajouter un fichier</button>
+    <div id="file-list" style="display:none; background:#f9f9f9; border:1px solid #e0e0e0; border-radius:4px; padding:15px;"></div>
     <div id="file-preview" style="margin-top:15px;"></div>
   </div>
 </div>
+
+<!-- Hidden file input for actual submission -->
+<input type="file" id="fichiers" name="fichiers" style="display:none;" multiple>
 <div style="margin-top:30px; display:grid; grid-template-columns:1fr 1fr; gap:15px;">
   <button type="button" id="verso-submit-btn" style="background-color:#1c2445; color:white; padding:14px 30px; font-weight:600; border:none; border-radius:4px; cursor:pointer; font-size:16px; text-transform:uppercase;">Envoyer la Demande</button>
   <button type="reset" style="background-color:#f0f0f0; color:#333; padding:14px 30px; font-weight:600; border:none; border-radius:4px; cursor:pointer; font-size:16px; text-transform:uppercase;">Réinitialiser</button>
