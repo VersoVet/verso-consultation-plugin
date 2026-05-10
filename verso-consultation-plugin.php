@@ -3,7 +3,7 @@
  * Plugin Name: Verso Consultation Form
  * Plugin URI: https://github.com/VersoVet/verso-consultation-plugin
  * Description: Professional consultation form with email notifications and secure file uploads
- * Version: 3.4.1
+ * Version: 3.4.2
  * Author: Verso Vet
  * License: GPL v2 or later
  * Text Domain: verso-consultation-plugin
@@ -804,7 +804,7 @@ function verso_enqueue_scripts() {
         'verso-form-handler',
         plugin_dir_url(__FILE__) . 'js/form.js',
         ['jquery'],
-        '3.4.1',
+        '3.4.2',
         true
     );
 
