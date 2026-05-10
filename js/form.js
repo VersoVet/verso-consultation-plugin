@@ -330,17 +330,22 @@ jQuery(document).ready(function ($) {
                 $('#conf-owner-email').text(data.owner_email);
                 $('#conf-uuid').text(data.uuid);
 
-                // Hide all form sections (Divi et_pb_section)
-                $('.et_pb_section').hide();
-
-                // Show confirmation section
-                $('#verso-confirmation').show();
-
                 // Reset selectedFiles array and file list UI
                 selectedFiles = [];
                 $('#file-list').empty().hide();
                 $('#file-preview').empty();
                 resetFormFields();
+
+                // Hide form sections but NOT the confirmation section
+                // Find all et_pb_section and hide them, except the one containing #verso-confirmation
+                $('.et_pb_section').each(function() {
+                    if (!$(this).find('#verso-confirmation').length) {
+                        $(this).hide();
+                    }
+                });
+
+                // Ensure confirmation section and its parent are visible
+                $('#verso-confirmation').show().closest('.et_pb_section').show();
 
                 // Scroll to confirmation
                 $('html, body').animate({
