@@ -582,15 +582,17 @@ function verso_create_consultation_page() {
             'post_content' => $form_html,
             'post_status'  => 'publish',
         ]);
+        return $page->ID;
     } else {
         // Create new page
-        wp_insert_post([
+        $page_id = wp_insert_post([
             'post_title'   => 'Demande de Consultation',
             'post_name'    => 'demande-de-consultation',
             'post_content' => $form_html,
             'post_status'  => 'publish',
             'post_type'    => 'page',
         ]);
+        return $page_id;
     }
 }
 
@@ -603,6 +605,45 @@ function verso_lazy_init_page() {
     if (!$page) {
         verso_create_consultation_page();
     }
+}
+
+// REST API endpoint to safely create consultation page
+add_action('rest_api_init', 'verso_register_rest_routes');
+
+function verso_register_rest_routes() {
+    register_rest_route('verso/v1', '/setup', [
+        'methods'             => 'POST',
+        'callback'            => 'verso_rest_setup_page',
+        'permission_callback' => 'verso_check_rest_permissions',
+    ]);
+}
+
+function verso_check_rest_permissions($request) {
+    // Check if user is authenticated and is administrator
+    if (!is_user_logged_in()) {
+        return new WP_Error('not_logged_in', 'You must be logged in', ['status' => 401]);
+    }
+
+    if (!current_user_can('manage_options')) {
+        return new WP_Error('insufficient_permissions', 'You do not have permission to perform this action', ['status' => 403]);
+    }
+
+    return true;
+}
+
+function verso_rest_setup_page($request) {
+    // Initialize upload directory
+    verso_init_upload_dir();
+
+    // Create/update consultation page
+    $page = verso_create_consultation_page();
+
+    return [
+        'success' => true,
+        'message' => 'Verso Consultation Plugin setup complete',
+        'page_id' => $page,
+        'page_url' => get_page_link($page),
+    ];
 }
 
 // Enqueue form JavaScript and styles
