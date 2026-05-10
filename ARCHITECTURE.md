@@ -255,18 +255,25 @@ sanitize_textarea_field()    → motif, owner_address
 
 ---
 
-### 3. File Upload & Storage (NEW v3.1.0)
+### 3. File Upload & Temporary Storage (NEW v3.1.0)
+
+**⚠️ IMPORTANT**: Stockage **TEMPORAIRE et TRANSITIONNEL UNIQUEMENT**
+- Fichiers créés lors de l'upload
+- Envoyés par email automatiquement
+- Supprimés après envoi (cleanup automatique)
+- **Aucun stockage permanent** dans ce plugin
+- Stockage permanent = `consultation-requests` (extraction IMAP des pièces jointes)
 
 #### Architecture Sécurisée
 
 ```
 wp-content/uploads/verso-consultations/
-├── .htaccess                    ← deny from all
-├── index.php                    ← Silence stub
-└── verso-1715234567-a1b2c3d4/   ← UUID subdirectory
+├── .htaccess                      ← deny from all
+├── index.php                      ← Silence stub
+└── verso-1715234567-a1b2c3d4/     ← UUID (TEMPORAIRE)
     ├── photo_0.jpg
     ├── radio_1.pdf
-    └── (cleanup after email send)
+    └── [SUPPRIMÉ APRÈS EMAIL] ✓
 ```
 
 #### Constante Source de Vérité
@@ -425,6 +432,20 @@ function verso_safe_delete_consultation_dir(string $uuid): void {
 verso_safe_delete_consultation_dir('verso-1715234567-a1b2c3d4/../../etc/passwd');
 // → Regex UUID fail → return sans action
 ```
+
+#### Cleanup Automatique Après Envoi
+
+```php
+// Après wp_mail() succès OU erreur:
+verso_safe_delete_consultation_dir($uuid); // Supprime verso-{uuid}/
+// Le répertoire est vidé et supprimé — aucune trace ne reste
+```
+
+**Pourquoi ce design ?**
+- ✅ Plugin léger (pas de DB bloated)
+- ✅ Fichiers sécurisés pendant transmission
+- ✅ Conformité : aucun stockage résidu
+- ✅ `consultation-requests` gère la persistance (IMAP extraction)
 
 ---
 

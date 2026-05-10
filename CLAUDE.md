@@ -106,17 +106,23 @@ __pycache__/
 
 ## Architecture du Plugin (v3.0.0)
 
-### Upload & Stockage Sécurisé
+### Upload & Stockage Sécurisé (TEMPORAIRE)
 
-#### Répertoire Dédié (NEW v3.1.0)
+⚠️ **IMPORTANT — Aucun stockage permanent dans ce plugin**:
+- Fichiers uploadés → verso-consultations/{uuid}/ (intermédiaire)
+- Email envoyé → consultations@verso-vet.com (avec pièces jointes)
+- Cleanup → répertoire {uuid}/ supprimé automatiquement
+- **Stockage permanent** = `consultation-requests` (IMAP monitor extrait les pièces jointes du mail)
+
+#### Répertoire Dédié (Temporaire)
 ```
 wp-content/uploads/verso-consultations/           ← Racine (deny from all)
 ├── .htaccess                                      ← Bloque accès HTTP
 ├── index.php                                      ← Silence stub
-└── verso-{timestamp}-{hash}/                      ← Par UUID
+└── verso-{timestamp}-{hash}/                      ← Par UUID (TEMPORAIRE)
     ├── photo.jpg
     ├── document.pdf
-    └── (cleanup après email)
+    └── [SUPPRIMÉ APRÈS EMAIL] ✓
 ```
 
 **Constante Source de Vérité**:
