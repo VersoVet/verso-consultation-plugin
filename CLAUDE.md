@@ -181,6 +181,34 @@ Attachments:
 }
 ```
 
+### Page Formulaire - Generation
+
+#### Structure HTML
+La fonction `verso_create_consultation_page()` génère la page `/demande-de-consultation/` en:
+1. Créant une variable `$form_html` contenant du HTML pur (pas de Divi Builder)
+2. Créant/mettant à jour une page WordPress avec slug `demande-de-consultation`
+3. Utilisant `wp_insert_post()` ou `wp_update_post()` selon si la page existe
+
+#### Layout
+- **Hero header**: Titre centré + description
+- **Deux colonnes**: 
+  - Colonne gauche (2/3): Formulaire avec 5 sections numérotées
+  - Colonne droite (1/3): Sidebar avec infos
+- **Responsive**: Mono-colonne sur mobile (max-width: 768px)
+
+#### Styling
+- Couleurs: #1c2445 (primary), #e74c3c (accent red)
+- CSS embarqué dans la chaîne HTML
+- Classes préfixées `verso-` pour éviter les conflits
+- **Pas de dépendance Divi Builder**: fonctionne avec n'importe quel thème
+
+#### Sections du Formulaire
+1. **Propriétaire**: Nom, Prénom, Email, Téléphone, Adresse (tous requis)
+2. **Vétérinaire** (optionnel): Clinique, Nom, Email, Téléphone
+3. **Animal** (requis): Nom, Espèce, Race
+4. **Motif** (requis): Textarea description
+5. **Pièces jointes** (optionnel): Upload de fichiers, max 5, 10 MB chacun
+
 ### Intégration ERP (Feature B)
 
 #### Flow
