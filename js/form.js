@@ -25,27 +25,54 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        const maxSize = 50 * 1024 * 1024; // 50 MB
+        const maxFiles = 10;
+        const maxSizePerFile = 5 * 1024 * 1024; // 5 MB
+        const maxTotalSize = 50 * 1024 * 1024; // 50 MB
         let totalSize = 0;
+        let hasErrors = false;
+
+        // Check file count
+        if (files.length > maxFiles) {
+            preview.append(
+                '<div style="color: #d32f2f; font-size: 0.9rem; margin-bottom: 10px;">❌ Maximum ' + maxFiles + ' fichiers autorisés. Vous en avez sélectionné ' + files.length + '</div>'
+            );
+            hasErrors = true;
+        }
 
         $.each(files, function (i, file) {
             totalSize += file.size;
-
             const size = formatFileSize(file.size);
+
+            // Check individual file size
+            const isOversized = file.size > maxSizePerFile;
+            const sizeColor = isOversized ? '#d32f2f' : '#666';
+            const icon = isOversized ? '⚠️' : '📄';
+
             const fileHtml = `
-                <div class="file-item">
-                    <span>📄</span>
-                    <span class="file-name">${escapeHtml(file.name)}</span>
-                    <span class="file-size">${size}</span>
+                <div class="file-item" style="display: flex; align-items: center; gap: 10px; padding: 8px; background: #f5f5f5; border-radius: 4px; margin-bottom: 8px; border-left: 3px solid ${isOversized ? '#d32f2f' : '#1c2445'};">
+                    <span style="font-size: 16px;">${icon}</span>
+                    <span class="file-name" style="flex: 1; word-break: break-word; color: #333;">${escapeHtml(file.name)}</span>
+                    <span class="file-size" style="font-size: 0.85rem; color: ${sizeColor}; font-weight: 600; white-space: nowrap;">${size}</span>
                 </div>
             `;
             preview.append(fileHtml);
+
+            if (isOversized) {
+                hasErrors = true;
+            }
         });
 
-        // Show total size warning if over limit
-        if (totalSize > maxSize) {
+        // Show warnings
+        if (totalSize > maxTotalSize) {
             preview.append(
-                '<div style="color: #d32f2f; font-size: 0.9rem; margin-top: 0.5rem;">⚠️ Taille totale dépasse 50 MB</div>'
+                '<div style="color: #d32f2f; font-size: 0.9rem; margin-top: 10px; padding: 8px; background: #fff3cd; border-left: 3px solid #d32f2f; border-radius: 2px;">⚠️ Taille totale dépasse 50 MB</div>'
+            );
+            hasErrors = true;
+        }
+
+        if (hasErrors && files.length <= maxFiles) {
+            preview.append(
+                '<div style="color: #d32f2f; font-size: 0.9rem; margin-top: 10px;">❌ Certains fichiers dépassent 5 MB - Veuillez corriger avant envoi</div>'
             );
         }
     });
@@ -53,6 +80,38 @@ jQuery(document).ready(function ($) {
     // Form submission via button click (no form tag)
     $(document).on('click', '#verso-submit-btn', function (e) {
         e.preventDefault();
+
+        // Validate file uploads before submitting
+        const fileInput = document.getElementById('fichiers');
+        if (fileInput && fileInput.files.length > 0) {
+            const maxFiles = 10;
+            const maxSizePerFile = 5 * 1024 * 1024; // 5 MB
+            const maxTotalSize = 50 * 1024 * 1024; // 50 MB
+            let totalSize = 0;
+
+            // Check file count
+            if (fileInput.files.length > maxFiles) {
+                showMessage('❌ Maximum ' + maxFiles + ' fichiers autorisés', 'error');
+                return;
+            }
+
+            // Check individual and total sizes
+            for (let i = 0; i < fileInput.files.length; i++) {
+                const file = fileInput.files[i];
+
+                if (file.size > maxSizePerFile) {
+                    showMessage('❌ Le fichier "' + file.name + '" dépasse 5 MB', 'error');
+                    return;
+                }
+
+                totalSize += file.size;
+            }
+
+            if (totalSize > maxTotalSize) {
+                showMessage('❌ La taille totale des fichiers dépasse 50 MB', 'error');
+                return;
+            }
+        }
 
         // Validate animal data
         const animalNom = $('#animal_nom').val().trim();
@@ -74,9 +133,12 @@ jQuery(document).ready(function ($) {
         const ownerPrenom = $('#owner_prenom').val().trim();
         const ownerEmail = $('#owner_email').val().trim();
         const ownerPhone = $('#owner_telephone').val().trim();
+        const ownerAdresse = $('#owner_adresse').val().trim();
+        const ownerCP = $('#owner_code_postal').val().trim();
+        const ownerVille = $('#owner_ville').val().trim();
 
-        if (!ownerNom || !ownerPrenom || !ownerEmail || !ownerPhone) {
-            showMessage('Veuillez remplir toutes les coordonnées du propriétaire', 'error');
+        if (!ownerNom || !ownerPrenom || !ownerEmail || !ownerPhone || !ownerAdresse || !ownerCP || !ownerVille) {
+            showMessage('Veuillez remplir toutes les coordonnées du propriétaire (adresse complète requise)', 'error');
             return;
         }
 

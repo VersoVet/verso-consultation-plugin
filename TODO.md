@@ -35,7 +35,7 @@
 - [x] PHP native mail() via WordPress wp_mail()
 
 ### Security & File Handling (NEW v3.1.0)
-- [x] Secure file upload support (max 5 files, 10MB each, 30MB total)
+- [x] Secure file upload support (max 10 files, 5MB each, 50MB total)
 - [x] MIME type validation (mime_content_type on actual file, not declared)
 - [x] Extension whitelist (jpg, jpeg, png, gif, webp, pdf, doc, docx)
 - [x] Filename sanitization (remove special chars, prevent traversal)

@@ -141,9 +141,9 @@ define('VERSO_UPLOAD_SUBDIR', 'verso-consultations');
 ### Upload Validation
 
 #### Limites de Stockage
-- Max **5 fichiers** par soumission
-- Max **10 MB** par fichier
-- Max **30 MB** total
+- Max **10 fichiers** par soumission
+- Max **5 MB** par fichier
+- Max **50 MB** total
 
 #### MIME Whitelist (double vérification)
 ```
@@ -213,7 +213,7 @@ La fonction `verso_create_consultation_page()` génère la page `/demande-de-con
 2. **Vétérinaire** (optionnel): Clinique, Nom, Email, Téléphone
 3. **Animal** (requis): Nom, Espèce, Race
 4. **Motif** (requis): Textarea description
-5. **Pièces jointes** (optionnel): Upload de fichiers, max 5, 10 MB chacun
+5. **Pièces jointes** (optionnel): Upload de fichiers, max 10, 5 MB chacun
 
 ### Intégration ERP (Feature B)
 

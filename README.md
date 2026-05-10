@@ -16,7 +16,7 @@ Professional consultation request form for veterinary practice with secure file 
 - **Veterinary Reference** - Optional clinic and vet details  
 - **Patient Details** - Animal name, species, breed
 - **Consultation Reason** - Detailed description
-- **File Attachments** - Up to 5 files (10 MB each, 30 MB total)
+- **File Attachments** - Up to 10 files (5 MB each, 50 MB total)
 
 ### 🔒 Enterprise Security
 - **Path Traversal Protection** - 4-layer validation (UUID regex + realpath + strpos)
@@ -102,9 +102,9 @@ verso-consultation-plugin/
 ## ⚙️ Configuration
 
 ### File Upload Limits
-- **Max files:** 5 per submission
-- **Max file size:** 10 MB each
-- **Max total size:** 30 MB per submission
+- **Max files:** 10 per submission
+- **Max file size:** 5 MB each
+- **Max total size:** 50 MB per submission
 
 ### Email Recipient
 Default: `consultations@verso-vet.com`

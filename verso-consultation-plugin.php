@@ -16,9 +16,9 @@ if (!defined('ABSPATH')) {
 
 // Upload directory configuration
 define('VERSO_UPLOAD_SUBDIR', 'verso-consultations');
-const VERSO_MAX_FILES = 5;
-const VERSO_MAX_FILE_SIZE = 10485760; // 10 MB
-const VERSO_MAX_TOTAL_SIZE = 31457280; // 30 MB
+const VERSO_MAX_FILES = 10;
+const VERSO_MAX_FILE_SIZE = 5242880; // 5 MB
+const VERSO_MAX_TOTAL_SIZE = 52428800; // 50 MB
 
 // Register AJAX handlers (for both logged in and non-logged in users)
 add_action('wp_ajax_verso_submit_consultation', 'verso_handle_consultation_ajax');
@@ -157,13 +157,13 @@ function verso_process_file_uploads($uuid) {
 
         // Validate individual file size
         if ($size > VERSO_MAX_FILE_SIZE) {
-            wp_send_json_error('Fichier trop volumineux : ' . $name . ' (maximum 10 MB)');
+            wp_send_json_error('Fichier trop volumineux : ' . $name . ' (maximum 5 MB)');
         }
 
         // Validate total size
         $total_size += $size;
         if ($total_size > VERSO_MAX_TOTAL_SIZE) {
-            wp_send_json_error('Taille totale excessive (maximum 30 MB)');
+            wp_send_json_error('Taille totale excessive (maximum 50 MB)');
         }
 
         // Validate MIME type
@@ -205,7 +205,13 @@ function verso_handle_consultation_ajax() {
     $owner_prenom = isset($_POST['owner_prenom']) ? sanitize_text_field($_POST['owner_prenom']) : '';
     $owner_email = isset($_POST['owner_email']) ? sanitize_email($_POST['owner_email']) : '';
     $owner_telephone = isset($_POST['owner_telephone']) ? sanitize_text_field($_POST['owner_telephone']) : '';
-    $owner_address = isset($_POST['owner_address']) ? sanitize_textarea_field($_POST['owner_address']) : '';
+    $owner_adresse = isset($_POST['owner_adresse']) ? sanitize_text_field($_POST['owner_adresse']) : '';
+    $owner_code_postal = isset($_POST['owner_code_postal']) ? sanitize_text_field($_POST['owner_code_postal']) : '';
+    $owner_ville = isset($_POST['owner_ville']) ? sanitize_text_field($_POST['owner_ville']) : '';
+    $owner_pays = isset($_POST['owner_pays']) ? sanitize_text_field($_POST['owner_pays']) : 'France';
+
+    // Combine address for backward compatibility
+    $owner_address = $owner_adresse . ', ' . $owner_code_postal . ' ' . $owner_ville . ', ' . $owner_pays;
 
     $vet_nom = isset($_POST['vet_nom']) ? sanitize_text_field($_POST['vet_nom']) : '';
     $vet_prenom = isset($_POST['vet_prenom']) ? sanitize_text_field($_POST['vet_prenom']) : '';
@@ -218,8 +224,8 @@ function verso_handle_consultation_ajax() {
     $animal_race = isset($_POST['animal_race']) ? sanitize_text_field($_POST['animal_race']) : '';
     $motif = isset($_POST['motif']) ? sanitize_textarea_field($_POST['motif']) : '';
 
-    // Validate required fields
-    if (empty($owner_nom) || empty($owner_prenom) || empty($owner_email) || empty($animal_nom) || empty($motif)) {
+    // Validate required fields (including new address fields)
+    if (empty($owner_nom) || empty($owner_prenom) || empty($owner_email) || empty($owner_adresse) || empty($owner_code_postal) || empty($owner_ville) || empty($animal_nom) || empty($motif)) {
         wp_send_json_error('Veuillez remplir tous les champs obligatoires');
     }
 
@@ -248,6 +254,10 @@ function verso_handle_consultation_ajax() {
         'owner_prenom'    => $owner_prenom,
         'owner_email'     => $owner_email,
         'owner_telephone' => $owner_telephone,
+        'owner_adresse'   => $owner_adresse,
+        'owner_code_postal' => $owner_code_postal,
+        'owner_ville'     => $owner_ville,
+        'owner_pays'      => $owner_pays,
         'owner_address'   => $owner_address,
         'vet_nom'         => $vet_nom,
         'vet_prenom'      => $vet_prenom,
@@ -504,9 +514,33 @@ function verso_create_consultation_page() {
     <label class="verso-label">Téléphone <span style="color:#e74c3c;">*</span></label>
     <input type="tel" id="owner_telephone" name="owner_telephone" required class="verso-input">
   </div>
+</div>
+<div class="verso-row verso-row-full">
   <div>
     <label class="verso-label">Adresse <span style="color:#e74c3c;">*</span></label>
-    <input type="text" id="owner_adresse" name="owner_adresse" required class="verso-input">
+    <input type="text" id="owner_adresse" name="owner_adresse" placeholder="Rue, numéro" required class="verso-input">
+  </div>
+</div>
+<div class="verso-row">
+  <div>
+    <label class="verso-label">Code Postal <span style="color:#e74c3c;">*</span></label>
+    <input type="text" id="owner_code_postal" name="owner_code_postal" placeholder="75000" required class="verso-input">
+  </div>
+  <div>
+    <label class="verso-label">Ville <span style="color:#e74c3c;">*</span></label>
+    <input type="text" id="owner_ville" name="owner_ville" placeholder="Paris" required class="verso-input">
+  </div>
+</div>
+<div class="verso-row verso-row-full">
+  <div>
+    <label class="verso-label">Pays <span style="color:#e74c3c;">*</span></label>
+    <select id="owner_pays" name="owner_pays" required class="verso-input">
+      <option value="France" selected>France</option>
+      <option value="Belgique">Belgique</option>
+      <option value="Suisse">Suisse</option>
+      <option value="Luxembourg">Luxembourg</option>
+      <option value="Autre">Autre</option>
+    </select>
   </div>
 </div>[/et_pb_code][/et_pb_column][/et_pb_row][/et_pb_section]
 
@@ -568,7 +602,7 @@ function verso_create_consultation_page() {
 [et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="#FFFFFF" custom_padding="50px||30px|||" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" width="90%" max_width="900px" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_text _builder_version="4.27.2" _module_preset="default" header_font="Barlow|700|||||||" header_text_color="#1c2445" global_colors_info="{}"]<h2 style="color:#1c2445; border-bottom:2px solid #e74c3c; padding-bottom:10px; margin-bottom:25px;">5. Pièces Jointes (Optionnel)</h2>[/et_pb_text][et_pb_code _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"]
 <div class="verso-row verso-row-full">
   <div>
-    <label class="verso-label">Fichiers (max 5, 10 MB chacun)</label>
+    <label class="verso-label">Fichiers (max 10, 5 MB chacun)</label>
     <input type="file" id="fichiers" name="fichiers" multiple class="verso-input">
     <div id="file-preview" style="margin-top:15px;"></div>
   </div>

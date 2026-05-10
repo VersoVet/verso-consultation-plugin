@@ -313,9 +313,9 @@ function verso_init_upload_dir(): void {
 
 **Limites**:
 ```php
-const VERSO_MAX_FILES = 5;           // max fichiers par soumission
-const VERSO_MAX_FILE_SIZE = 10485760; // 10 MB per file
-const VERSO_MAX_TOTAL_SIZE = 31457280; // 30 MB total
+const VERSO_MAX_FILES = 10;           // max fichiers par soumission
+const VERSO_MAX_FILE_SIZE = 5242880;  // 5 MB per file
+const VERSO_MAX_TOTAL_SIZE = 52428800; // 50 MB total
 ```
 
 **MIME Whitelist** (validation stricte):
@@ -636,7 +636,7 @@ Utilise prepared statements — safe contre SQL injection.
 | **Extension Bypass** | Unknown ext (.php, .sh) | Double whitelist (MIME + ext) |
 | **Fichiers Orphelins** | Email send failure | Cleanup systématique (try/finally) |
 | **HTTP Direct Access** | uploads/ public | .htaccess deny + index.php stub |
-| **Débordement Disque** | Large uploads | 5 fichiers max / 10 MB / 30 MB total |
+| **Débordement Disque** | Large uploads | 10 fichiers max / 5 MB / 50 MB total |
 | **SQL Injection** | DB insert | `$wpdb->insert()` prepared statements |
 | **XSS** | User input in response | JSON response, no HTML. JS escapeHtml() |
 | **CSRF** | No nonce | Public form (acceptable, low risk) |
@@ -651,10 +651,10 @@ Utilise prepared statements — safe contre SQL injection.
 - [ ] Vérifier consultation.json contient section `files`
 
 ### Validation Upload
-- [ ] 6 fichiers → erreur "Trop de fichiers (maximum 5)"
-- [ ] 1 fichier 15 MB → erreur "Fichier trop volumineux (maximum 10 MB)"
+- [ ] 11 fichiers → erreur "Trop de fichiers (maximum 10)"
+- [ ] 1 fichier 6 MB → erreur "Fichier trop volumineux (maximum 5 MB)"
 - [ ] Fichier .php → erreur "Type de fichier non autorisé"
-- [ ] Total > 30 MB → erreur "Taille totale excessive (maximum 30 MB)"
+- [ ] Total > 50 MB → erreur "Taille totale excessive (maximum 50 MB)"
 
 ### Sécurité
 - [ ] Répertoire `verso-consultations/{uuid}/` supprimé après envoi
