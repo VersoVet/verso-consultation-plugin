@@ -3,7 +3,6 @@
  */
 
 jQuery(document).ready(function ($) {
-    const form = $('#verso-form');
     const messageEl = $('#form-message');
 
     // Initialize: Owner fields are always required, Vet fields are optional
@@ -51,12 +50,9 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    // Form submission
-    form.on('submit', function (e) {
+    // Form submission via button click (no form tag)
+    $(document).on('click', '#verso-submit-btn', function (e) {
         e.preventDefault();
-
-        // Validate form
-        form.addClass('was-validated');
 
         // Validate animal data
         const animalNom = $('#animal_nom').val().trim();
@@ -107,12 +103,11 @@ jQuery(document).ready(function ($) {
      * Submit form via AJAX
      */
     function submitForm() {
-        const formData = new FormData(form[0]);
-        // Add action parameter for WordPress AJAX routing
-        formData.append('action', 'verso_submit_consultation');
+        // Collect form data without form element
+        const formData = buildFormData();
 
         // Add AJAX indicator
-        const submitBtn = form.find('button[type="submit"]');
+        const submitBtn = $('#verso-submit-btn');
         const originalText = submitBtn.html();
         submitBtn.prop('disabled', true).html(
             '<span class="verso-loading-spinner"></span>Envoi en cours...'
@@ -130,8 +125,7 @@ jQuery(document).ready(function ($) {
                     '✅ ' + response.message,
                     'success'
                 );
-                form[0].reset();
-                form.removeClass('was-validated');
+                resetFormFields();
                 $('#file-preview').empty();
                 // Keep owner section visible, hide vet section after submission
                 $('#owner-section').removeClass('verso-hidden');
@@ -179,6 +173,52 @@ jQuery(document).ready(function ($) {
                 submitBtn.prop('disabled', false).html(originalText);
             }
         });
+    }
+
+    /**
+     * Build FormData from all form fields on the page
+     * (no form element dependency)
+     */
+    function buildFormData() {
+        const fd = new FormData();
+        fd.append('action', 'verso_submit_consultation');
+
+        // Collect text, email, tel, select, textarea fields
+        $('input[name]:not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"]), select[name], textarea[name]').each(function() {
+            fd.append($(this).attr('name'), $(this).val() || '');
+        });
+
+        // Collect multiple files
+        const fileInput = document.getElementById('fichiers');
+        if (fileInput && fileInput.files) {
+            Array.from(fileInput.files).forEach(function(file) {
+                fd.append('fichiers[]', file);
+            });
+        }
+
+        return fd;
+    }
+
+    /**
+     * Reset all form fields on the page
+     * (no form element dependency)
+     */
+    function resetFormFields() {
+        // Reset text/email/tel inputs
+        $('input[name]:not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"])').val('');
+
+        // Reset selects (set to first option)
+        $('select[name]').prop('selectedIndex', 0);
+
+        // Reset textareas
+        $('textarea[name]').val('');
+
+        // Reset file input
+        const fileInput = document.getElementById('fichiers');
+        if (fileInput) fileInput.value = '';
+
+        // Clear file preview
+        $('#file-preview').empty();
     }
 
     /**

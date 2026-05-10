@@ -477,19 +477,118 @@ function verso_create_consultation_page() {
     // Check if page exists
     $page = $wpdb->get_row("SELECT ID FROM {$wpdb->posts} WHERE post_name='demande-de-consultation' AND post_type='page' LIMIT 1");
 
-    // Professional form layout with Divi Builder structure - Blue header with image overlay
-    $form_html = '[et_pb_section fb_built="1" theme_builder_area="post_content" _builder_version="4.16" background_color="#1c2445" background_image="https://verso-vet.com/wp-content/uploads/2025/01/VirginieB-74721280px-72dpi.jpg" custom_padding="120px||120px||false|false" padding_top_tablet="" padding_right_tablet="" padding_bottom_tablet="" padding_left_tablet=""][et_pb_row _builder_version="4.16" theme_builder_area="post_content" width="100%"][et_pb_column type="4_4" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content" text_font_size="48px" text_line_height="1.2em" text_text_color="#FFFFFF" header_font_size="48px" header_line_height="1.2em" header_text_color="#FFFFFF" custom_padding="0|0|0|0" header_text_align="center"]<h1 style="color: white; text-align: center; font-weight: 300; letter-spacing: 1px;">Demande de Consultation Vétérinaire</h1>[/et_pb_text][et_pb_text _builder_version="4.16" theme_builder_area="post_content" text_font_size="20px" text_line_height="1.6em" text_text_color="rgba(255,255,255,0.9)" custom_padding="0|0|40px|0" text_align="center"]Remplissez ce formulaire pour nous soumettre votre demande. Notre équipe vous répondra dans les meilleurs délais.[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section][et_pb_section fb_built="1" theme_builder_area="post_content" _builder_version="4.16" background_color="#FFFFFF" padding_top="60px" padding_bottom="60px" custom_padding="60px|0|60px|0"][et_pb_row _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px"][et_pb_column type="4_4" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content" text_font_size="28px" text_text_color="#1c2445" header_font_size="28px" header_text_color="#1c2445" custom_padding="0|0|20px|0"]<h2 style="color: #1c2445; border-bottom: 2px solid #e74c3c; padding-bottom: 12px; margin-bottom: 30px;">1. Informations Propriétaire</h2>[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row column_structure="1_2,1_2" _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px" custom_margin="0|auto"][et_pb_column type="1_2" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Nom <span style="color: #e74c3c;">*</span></label><input type="text" name="owner_nom" required style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][et_pb_column type="1_2" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Prénom <span style="color: #e74c3c;">*</span></label><input type="text" name="owner_prenom" required style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px" custom_margin="0|auto"][et_pb_column type="4_4" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Email <span style="color: #e74c3c;">*</span></label><input type="email" name="owner_email" required style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row column_structure="1_2,1_2" _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px" custom_margin="0|auto|60px|auto"][et_pb_column type="1_2" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Téléphone <span style="color: #e74c3c;">*</span></label><input type="tel" name="owner_telephone" required style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][et_pb_column type="1_2" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Adresse <span style="color: #e74c3c;">*</span></label><input type="text" name="owner_adresse" required style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px"][et_pb_column type="4_4" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<h2 style="color: #1c2445; border-bottom: 2px solid #e74c3c; padding-bottom: 12px; margin-bottom: 30px; margin-top: 60px;">2. Vétérinaire Suivi (Optionnel)</h2>[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row column_structure="1_2,1_2" _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px" custom_margin="0|auto|60px|auto"][et_pb_column type="1_2" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Clinique</label><input type="text" name="vet_clinique" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][et_pb_column type="1_2" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Vétérinaire</label><input type="text" name="vet_nom" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row column_structure="1_2,1_2" _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px" custom_margin="0|auto|60px|auto"][et_pb_column type="1_2" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Email</label><input type="email" name="vet_email" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][et_pb_column type="1_2" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Téléphone</label><input type="tel" name="vet_telephone" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px"][et_pb_column type="4_4" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<h2 style="color: #1c2445; border-bottom: 2px solid #e74c3c; padding-bottom: 12px; margin-bottom: 30px; margin-top: 60px;">3. Patient Animal</h2>[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row column_structure="1_2,1_2" _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px" custom_margin="0|auto|60px|auto"][et_pb_column type="1_2" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Nom <span style="color: #e74c3c;">*</span></label><input type="text" name="animal_nom" required style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][et_pb_column type="1_2" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Espèce <span style="color: #e74c3c;">*</span></label><select name="animal_espece" required style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;"><option value="">-- Sélectionner --</option><option value="Chien">Chien</option><option value="Chat">Chat</option><option value="Oiseau">Oiseau</option><option value="Lapin">Lapin</option><option value="Autre">Autre</option></select>[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px" custom_margin="0|auto|60px|auto"][et_pb_column type="4_4" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Race</label><input type="text" name="animal_race" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" />[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px"][et_pb_column type="4_4" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<h2 style="color: #1c2445; border-bottom: 2px solid #e74c3c; padding-bottom: 12px; margin-bottom: 30px; margin-top: 60px;">4. Motif de Consultation</h2><label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Décrivez le motif <span style="color: #e74c3c;">*</span></label><textarea name="motif" required style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; min-height: 120px;" id="verso-form"></textarea>[/et_pb_text][/et_pb_column][/et_pb_row][et_pb_row _builder_version="4.16" theme_builder_area="post_content" width="80%" max_width="1000px" custom_margin="0|auto|60px|auto"][et_pb_column type="4_4" _builder_version="4.16" theme_builder_area="post_content"][et_pb_text _builder_version="4.16" theme_builder_area="post_content"]<h2 style="color: #1c2445; border-bottom: 2px solid #e74c3c; padding-bottom: 12px; margin-bottom: 30px;">5. Pièces Jointes (Optionnel)</h2><label style="display: block; font-weight: 600; margin-bottom: 8px; color: #333;">Fichiers (max 5, 10MB chacun)</label><input type="file" id="fichiers" name="fichiers" multiple style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" /><div id="file-preview" style="margin-top: 15px;"></div><div style="margin-top: 30px;"><button type="submit" style="background-color: #1c2445; color: white; padding: 14px 30px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; text-transform: uppercase;">Envoyer</button><button type="reset" style="background-color: #f0f0f0; color: #333; padding: 14px 30px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; text-transform: uppercase;">Réinitialiser</button></div><div id="form-message" style="display: none; margin-top: 20px; padding: 15px; border-radius: 4px;"></div>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]';
+    // Divi Builder page structure (native format, no theme_builder_area)
+    // Pattern: use proper Divi 4.27.2 shortcodes compatible with Visual Builder
+    $form_html = <<<'EOT'
+[et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="rgba(0,0,0,0.8)" background_image="https://verso-vet.com/wp-content/uploads/2025/01/VirginieB-74721280px-72dpi.jpg" background_blend="darken" custom_margin="-150px||||false|false" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" custom_margin="300px||150px||false|false" custom_margin_tablet="300px||150px||false|false" custom_margin_phone="200px||100px||false|false" custom_margin_last_edited="on|phone" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_text _builder_version="4.27.2" _module_preset="default" header_font="Barlow|700|||||||" header_text_align="center" header_text_color="#FFFFFF" header_font_size="48px" header_font_size_tablet="48px" header_font_size_phone="34px" header_font_size_last_edited="on|phone" global_colors_info="{}"]<h1>Demande de Consultation Vétérinaire</h1>[/et_pb_text][et_pb_text _builder_version="4.27.2" _module_preset="default" text_font="Barlow||||||||" text_text_color="#FFFFFF" text_font_size="18px" text_orientation="center" global_colors_info="{}"]<p>Remplissez ce formulaire pour nous soumettre votre demande de consultation.<br/>Notre équipe vous répondra dans les meilleurs délais.</p>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]
 
+[et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="#FFFFFF" custom_padding="50px||30px|||" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" width="90%" max_width="900px" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_text _builder_version="4.27.2" _module_preset="default" header_font="Barlow|700|||||||" header_text_color="#1c2445" global_colors_info="{}"]<h2 style="color:#1c2445; border-bottom:2px solid #e74c3c; padding-bottom:10px; margin-bottom:25px;">1. Informations Propriétaire</h2>[/et_pb_text][et_pb_code _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"]<style>.verso-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:15px;}.verso-row-full{grid-template-columns:1fr !important;}.verso-label{display:block;font-weight:600;margin-bottom:6px;color:#333;}.verso-input{width:100%;padding:12px 15px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;font-size:14px;transition:border-color 0.3s;}.verso-input:focus{outline:none;border-color:#e74c3c;box-shadow:0 0 0 3px rgba(231,76,60,0.1);}@media(max-width:640px){.verso-row{grid-template-columns:1fr;}}</style>
+<div class="verso-row" id="owner-section">
+  <div>
+    <label class="verso-label">Nom <span style="color:#e74c3c;">*</span></label>
+    <input type="text" id="owner_nom" name="owner_nom" required class="verso-input">
+  </div>
+  <div>
+    <label class="verso-label">Prénom <span style="color:#e74c3c;">*</span></label>
+    <input type="text" id="owner_prenom" name="owner_prenom" required class="verso-input">
+  </div>
+</div>
+<div class="verso-row verso-row-full">
+  <div>
+    <label class="verso-label">Email <span style="color:#e74c3c;">*</span></label>
+    <input type="email" id="owner_email" name="owner_email" required class="verso-input">
+  </div>
+</div>
+<div class="verso-row">
+  <div>
+    <label class="verso-label">Téléphone <span style="color:#e74c3c;">*</span></label>
+    <input type="tel" id="owner_telephone" name="owner_telephone" required class="verso-input">
+  </div>
+  <div>
+    <label class="verso-label">Adresse <span style="color:#e74c3c;">*</span></label>
+    <input type="text" id="owner_adresse" name="owner_adresse" required class="verso-input">
+  </div>
+</div>[/et_pb_code][/et_pb_column][/et_pb_row][/et_pb_section]
+
+[et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="#f9f9f9" custom_padding="50px||30px|||" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" width="90%" max_width="900px" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_text _builder_version="4.27.2" _module_preset="default" header_font="Barlow|700|||||||" header_text_color="#1c2445" global_colors_info="{}"]<h2 style="color:#1c2445; border-bottom:2px solid #e74c3c; padding-bottom:10px; margin-bottom:25px;">2. Vétérinaire Suivi (Optionnel)</h2>[/et_pb_text][et_pb_code _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"]
+<div class="verso-row" id="vet-section">
+  <div>
+    <label class="verso-label">Clinique</label>
+    <input type="text" id="vet_clinique" name="vet_clinique" class="verso-input">
+  </div>
+  <div>
+    <label class="verso-label">Vétérinaire</label>
+    <input type="text" id="vet_nom" name="vet_nom" class="verso-input">
+  </div>
+</div>
+<div class="verso-row">
+  <div>
+    <label class="verso-label">Email</label>
+    <input type="email" id="vet_email" name="vet_email" class="verso-input">
+  </div>
+  <div>
+    <label class="verso-label">Téléphone</label>
+    <input type="tel" id="vet_telephone" name="vet_telephone" class="verso-input">
+  </div>
+</div>[/et_pb_code][/et_pb_column][/et_pb_row][/et_pb_section]
+
+[et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="#FFFFFF" custom_padding="50px||30px|||" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" width="90%" max_width="900px" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_text _builder_version="4.27.2" _module_preset="default" header_font="Barlow|700|||||||" header_text_color="#1c2445" global_colors_info="{}"]<h2 style="color:#1c2445; border-bottom:2px solid #e74c3c; padding-bottom:10px; margin-bottom:25px;">3. Patient Animal</h2>[/et_pb_text][et_pb_code _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"]
+<div class="verso-row">
+  <div>
+    <label class="verso-label">Nom <span style="color:#e74c3c;">*</span></label>
+    <input type="text" id="animal_nom" name="animal_nom" required class="verso-input">
+  </div>
+  <div>
+    <label class="verso-label">Espèce <span style="color:#e74c3c;">*</span></label>
+    <select id="animal_espece" name="animal_espece" required class="verso-input">
+      <option value="">-- Sélectionner --</option>
+      <option value="Chien">Chien</option>
+      <option value="Chat">Chat</option>
+      <option value="Oiseau">Oiseau</option>
+      <option value="Lapin">Lapin</option>
+      <option value="Autre">Autre</option>
+    </select>
+  </div>
+</div>
+<div class="verso-row verso-row-full">
+  <div>
+    <label class="verso-label">Race</label>
+    <input type="text" id="animal_race" name="animal_race" class="verso-input">
+  </div>
+</div>[/et_pb_code][/et_pb_column][/et_pb_row][/et_pb_section]
+
+[et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="#f9f9f9" custom_padding="50px||30px|||" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" width="90%" max_width="900px" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_text _builder_version="4.27.2" _module_preset="default" header_font="Barlow|700|||||||" header_text_color="#1c2445" global_colors_info="{}"]<h2 style="color:#1c2445; border-bottom:2px solid #e74c3c; padding-bottom:10px; margin-bottom:25px;">4. Motif de la Consultation</h2>[/et_pb_text][et_pb_code _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"]
+<div class="verso-row verso-row-full">
+  <div>
+    <label class="verso-label">Décrivez le motif <span style="color:#e74c3c;">*</span></label>
+    <textarea id="motif" name="motif" required class="verso-input" style="resize:vertical; min-height:120px; font-family:inherit;"></textarea>
+  </div>
+</div>[/et_pb_code][/et_pb_column][/et_pb_row][/et_pb_section]
+
+[et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="#FFFFFF" custom_padding="50px||30px|||" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" width="90%" max_width="900px" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_text _builder_version="4.27.2" _module_preset="default" header_font="Barlow|700|||||||" header_text_color="#1c2445" global_colors_info="{}"]<h2 style="color:#1c2445; border-bottom:2px solid #e74c3c; padding-bottom:10px; margin-bottom:25px;">5. Pièces Jointes (Optionnel)</h2>[/et_pb_text][et_pb_code _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"]
+<div class="verso-row verso-row-full">
+  <div>
+    <label class="verso-label">Fichiers (max 5, 10 MB chacun)</label>
+    <input type="file" id="fichiers" name="fichiers" multiple class="verso-input">
+    <div id="file-preview" style="margin-top:15px;"></div>
+  </div>
+</div>
+<div style="margin-top:30px; display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+  <button type="button" id="verso-submit-btn" style="background-color:#1c2445; color:white; padding:14px 30px; font-weight:600; border:none; border-radius:4px; cursor:pointer; font-size:16px; text-transform:uppercase;">Envoyer la Demande</button>
+  <button type="reset" style="background-color:#f0f0f0; color:#333; padding:14px 30px; font-weight:600; border:none; border-radius:4px; cursor:pointer; font-size:16px; text-transform:uppercase;">Réinitialiser</button>
+</div>
+<div id="form-message" style="display:none; margin-top:20px; padding:15px; border-radius:4px;"></div>[/et_pb_code][/et_pb_column][/et_pb_row][/et_pb_section]
+EOT;
+
+    // Create or update page
     if ($page) {
-        // Update existing page
+        $page_id = $page->ID;
         wp_update_post([
-            'ID'           => $page->ID,
+            'ID'           => $page_id,
             'post_content' => $form_html,
             'post_status'  => 'publish',
         ]);
-        return $page->ID;
     } else {
-        // Create new page
         $page_id = wp_insert_post([
             'post_title'   => 'Demande de Consultation',
             'post_name'    => 'demande-de-consultation',
@@ -497,8 +596,28 @@ function verso_create_consultation_page() {
             'post_status'  => 'publish',
             'post_type'    => 'page',
         ]);
-        return $page_id;
     }
+
+    // Add Divi Builder postmeta (critical for Visual Builder activation)
+    if ($page_id) {
+        $divi_metas = [
+            '_et_pb_use_builder'         => 'on',
+            '_et_builder_version'        => 'VB|Divi|4.27.2',
+            '_et_pb_built_for_post_type' => 'page',
+            '_et_pb_page_layout'         => 'et_right_sidebar',
+            '_et_pb_gutter_width'        => '3',
+            '_et_pb_post_hide_nav'       => 'default',
+            '_et_pb_side_nav'            => 'off',
+            '_et_pb_show_page_creation'  => 'off',
+            '_et_pb_custom_css'          => '',
+            '_global_colors_info'        => '{}',
+        ];
+        foreach ($divi_metas as $key => $value) {
+            update_post_meta($page_id, $key, $value);
+        }
+    }
+
+    return $page_id;
 }
 
 // REST API endpoint to safely create consultation page (with token auth)
