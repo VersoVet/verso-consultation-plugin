@@ -477,174 +477,164 @@ function verso_create_consultation_page() {
     // Check if page exists
     $page = $wpdb->get_row("SELECT ID FROM {$wpdb->posts} WHERE post_name='demande-de-consultation' AND post_type='page' LIMIT 1");
 
-    // Divi Builder-compatible page structure with professional styling
-    $form_html = '<!-- wp:html -->
-<div class="et_pb_section et_pb_section_0 et_section_regular" data-background-color="#ffffff">
-    <!-- Header Section with Hero Image -->
-    <div class="et_pb_row et_pb_row_0">
-        <div class="et_pb_column et_pb_column_4_4 et_medium_column_4_4 et_small_column_4_4">
-            <div class="et_pb_module et_pb_text et_pb_text_0">
-                <div class="et_pb_text_inner">
-                    <h1 style="text-align: center; color: #1c2445; font-size: 48px; margin-bottom: 20px; font-weight: 300;">Demande de Consultation</h1>
-                    <p style="text-align: center; color: #666; font-size: 18px; margin-bottom: 0;">Remplissez ce formulaire pour nous soumettre votre demande de consultation vétérinaire</p>
-                </div>
-            </div>
-        </div>
+    // Professional form layout with hero header image section
+    $form_html = '<!-- Hero Section with Background Image -->
+<div class="verso-hero-section" style="background: linear-gradient(135deg, #1c2445 0%, #2d3a5c 100%); padding: 100px 20px; text-align: center; color: white; margin-bottom: 60px;">
+    <div style="max-width: 900px; margin: 0 auto;">
+        <h1 style="font-size: 48px; margin: 0 0 20px 0; font-weight: 300; letter-spacing: 1px;">Demande de Consultation</h1>
+        <p style="font-size: 20px; margin: 0; font-weight: 300; opacity: 0.95; line-height: 1.6;">Remplissez ce formulaire pour nous soumettre votre demande de consultation vétérinaire.<br/>Notre équipe vous répondra dans les meilleurs délais.</p>
     </div>
 </div>
 
-<!-- Form Section -->
-<div class="et_pb_section et_pb_section_1 et_section_regular" data-background-color="#f9f9f9" style="padding: 60px 0;">
-    <div class="et_pb_row et_pb_row_1">
-        <div class="et_pb_column et_pb_column_2_3 et_medium_column_3_4 et_small_column_4_4">
-            <div class="et_pb_module et_pb_text">
-                <form id="verso-form" method="POST" enctype="multipart/form-data" class="verso-consultation-form">
+<!-- Main Content Container -->
+<div style="max-width: 1100px; margin: 0 auto; padding: 0 20px 80px 20px;">
+    <!-- Two-column layout: Form + Sidebar -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 50px; align-items: start;">
+        <!-- Main Form -->
+        <div>
+            <form id="verso-form" method="POST" enctype="multipart/form-data" class="verso-consultation-form">
 
-                    <!-- SECTION 1: PROPRIÉTAIRE -->
-                    <div class="verso-form-section">
-                        <h3 class="verso-section-title">1. Informations Propriétaire <span style="color: #e74c3c;">*</span></h3>
+                <!-- SECTION 1: PROPRIÉTAIRE -->
+                <div class="verso-form-section">
+                    <h3 class="verso-section-title">1. Informations Propriétaire <span style="color: #e74c3c;">*</span></h3>
 
-                        <div class="verso-form-row">
-                            <div class="verso-form-col">
-                                <label class="verso-label">Nom <span style="color: #e74c3c;">*</span></label>
-                                <input type="text" name="owner_nom" required class="verso-input">
-                            </div>
-                            <div class="verso-form-col">
-                                <label class="verso-label">Prénom <span style="color: #e74c3c;">*</span></label>
-                                <input type="text" name="owner_prenom" required class="verso-input">
-                            </div>
+                    <div class="verso-form-row">
+                        <div class="verso-form-col">
+                            <label class="verso-label">Nom <span style="color: #e74c3c;">*</span></label>
+                            <input type="text" name="owner_nom" required class="verso-input">
                         </div>
-
-                        <div class="verso-form-row">
-                            <div class="verso-form-col">
-                                <label class="verso-label">Email <span style="color: #e74c3c;">*</span></label>
-                                <input type="email" name="owner_email" required class="verso-input">
-                            </div>
-                        </div>
-
-                        <div class="verso-form-row">
-                            <div class="verso-form-col">
-                                <label class="verso-label">Téléphone <span style="color: #e74c3c;">*</span></label>
-                                <input type="tel" name="owner_telephone" required class="verso-input">
-                            </div>
-                            <div class="verso-form-col">
-                                <label class="verso-label">Adresse <span style="color: #e74c3c;">*</span></label>
-                                <input type="text" name="owner_adresse" required class="verso-input">
-                            </div>
+                        <div class="verso-form-col">
+                            <label class="verso-label">Prénom <span style="color: #e74c3c;">*</span></label>
+                            <input type="text" name="owner_prenom" required class="verso-input">
                         </div>
                     </div>
 
-                    <!-- SECTION 2: VÉTÉRINAIRE OPTIONNEL -->
-                    <div class="verso-form-section">
-                        <h3 class="verso-section-title">2. Vétérinaire Suivi <span style="color: #999; font-weight: normal;">(Optionnel)</span></h3>
-                        <p class="verso-section-desc">Renseignez ces champs si vous êtes suivi par un vétérinaire</p>
-
-                        <div class="verso-form-row">
-                            <div class="verso-form-col">
-                                <label class="verso-label">Nom Clinique</label>
-                                <input type="text" name="vet_clinique" class="verso-input">
-                            </div>
-                            <div class="verso-form-col">
-                                <label class="verso-label">Vétérinaire</label>
-                                <input type="text" name="vet_nom" class="verso-input">
-                            </div>
-                        </div>
-
-                        <div class="verso-form-row">
-                            <div class="verso-form-col">
-                                <label class="verso-label">Email</label>
-                                <input type="email" name="vet_email" class="verso-input">
-                            </div>
-                            <div class="verso-form-col">
-                                <label class="verso-label">Téléphone</label>
-                                <input type="tel" name="vet_telephone" class="verso-input">
-                            </div>
+                    <div class="verso-form-row">
+                        <div class="verso-form-col">
+                            <label class="verso-label">Email <span style="color: #e74c3c;">*</span></label>
+                            <input type="email" name="owner_email" required class="verso-input">
                         </div>
                     </div>
 
-                    <!-- SECTION 3: ANIMAL -->
-                    <div class="verso-form-section">
-                        <h3 class="verso-section-title">3. Patient Animal <span style="color: #e74c3c;">*</span></h3>
-
-                        <div class="verso-form-row">
-                            <div class="verso-form-col">
-                                <label class="verso-label">Nom <span style="color: #e74c3c;">*</span></label>
-                                <input type="text" name="animal_nom" required class="verso-input">
-                            </div>
-                            <div class="verso-form-col">
-                                <label class="verso-label">Espèce <span style="color: #e74c3c;">*</span></label>
-                                <select name="animal_espece" required class="verso-input">
-                                    <option value="">-- Sélectionner --</option>
-                                    <option value="Chien">Chien</option>
-                                    <option value="Chat">Chat</option>
-                                    <option value="Oiseau">Oiseau</option>
-                                    <option value="Lapin">Lapin</option>
-                                    <option value="Autre">Autre</option>
-                                </select>
-                            </div>
+                    <div class="verso-form-row">
+                        <div class="verso-form-col">
+                            <label class="verso-label">Téléphone <span style="color: #e74c3c;">*</span></label>
+                            <input type="tel" name="owner_telephone" required class="verso-input">
                         </div>
+                        <div class="verso-form-col">
+                            <label class="verso-label">Adresse <span style="color: #e74c3c;">*</span></label>
+                            <input type="text" name="owner_adresse" required class="verso-input">
+                        </div>
+                    </div>
+                </div>
 
-                        <div class="verso-form-row">
-                            <div class="verso-form-col">
-                                <label class="verso-label">Race</label>
-                                <input type="text" name="animal_race" class="verso-input">
-                            </div>
+                <!-- SECTION 2: VÉTÉRINAIRE -->
+                <div class="verso-form-section">
+                    <h3 class="verso-section-title">2. Vétérinaire Suivi <span style="color: #999; font-weight: normal;">(Optionnel)</span></h3>
+                    <p class="verso-section-desc">Renseignez ces champs si vous êtes suivi par un vétérinaire</p>
+
+                    <div class="verso-form-row">
+                        <div class="verso-form-col">
+                            <label class="verso-label">Nom Clinique</label>
+                            <input type="text" name="vet_clinique" class="verso-input">
+                        </div>
+                        <div class="verso-form-col">
+                            <label class="verso-label">Vétérinaire</label>
+                            <input type="text" name="vet_nom" class="verso-input">
                         </div>
                     </div>
 
-                    <!-- SECTION 4: MOTIF -->
-                    <div class="verso-form-section">
-                        <h3 class="verso-section-title">4. Motif de la Consultation <span style="color: #e74c3c;">*</span></h3>
+                    <div class="verso-form-row">
+                        <div class="verso-form-col">
+                            <label class="verso-label">Email</label>
+                            <input type="email" name="vet_email" class="verso-input">
+                        </div>
+                        <div class="verso-form-col">
+                            <label class="verso-label">Téléphone</label>
+                            <input type="tel" name="vet_telephone" class="verso-input">
+                        </div>
+                    </div>
+                </div>
 
-                        <div class="verso-form-row">
-                            <div class="verso-form-col">
-                                <label class="verso-label">Décrivez le motif <span style="color: #e74c3c;">*</span></label>
-                                <textarea name="motif" required class="verso-textarea" rows="6"></textarea>
-                            </div>
+                <!-- SECTION 3: ANIMAL -->
+                <div class="verso-form-section">
+                    <h3 class="verso-section-title">3. Patient Animal <span style="color: #e74c3c;">*</span></h3>
+
+                    <div class="verso-form-row">
+                        <div class="verso-form-col">
+                            <label class="verso-label">Nom <span style="color: #e74c3c;">*</span></label>
+                            <input type="text" name="animal_nom" required class="verso-input">
+                        </div>
+                        <div class="verso-form-col">
+                            <label class="verso-label">Espèce <span style="color: #e74c3c;">*</span></label>
+                            <select name="animal_espece" required class="verso-input">
+                                <option value="">-- Sélectionner --</option>
+                                <option value="Chien">Chien</option>
+                                <option value="Chat">Chat</option>
+                                <option value="Oiseau">Oiseau</option>
+                                <option value="Lapin">Lapin</option>
+                                <option value="Autre">Autre</option>
+                            </select>
                         </div>
                     </div>
 
-                    <!-- SECTION 5: PIÈCES JOINTES -->
-                    <div class="verso-form-section">
-                        <h3 class="verso-section-title">5. Pièces Jointes <span style="color: #999; font-weight: normal;">(Optionnel)</span></h3>
-                        <p class="verso-section-desc">Joignez des photos ou documents utiles (max 5 fichiers, 10 MB par fichier, 30 MB total)</p>
-
-                        <div class="verso-form-row">
-                            <div class="verso-form-col">
-                                <label class="verso-label">Fichiers</label>
-                                <input type="file" id="fichiers" name="fichiers" multiple class="verso-input">
-                                <div id="file-preview" style="margin-top: 15px;"></div>
-                            </div>
+                    <div class="verso-form-row">
+                        <div class="verso-form-col">
+                            <label class="verso-label">Race</label>
+                            <input type="text" name="animal_race" class="verso-input">
                         </div>
                     </div>
+                </div>
 
-                    <!-- SUBMIT BUTTONS -->
-                    <div class="verso-form-actions">
-                        <button type="submit" class="verso-btn verso-btn-primary">Envoyer la Demande</button>
-                        <button type="reset" class="verso-btn verso-btn-secondary">Réinitialiser</button>
+                <!-- SECTION 4: MOTIF -->
+                <div class="verso-form-section">
+                    <h3 class="verso-section-title">4. Motif de la Consultation <span style="color: #e74c3c;">*</span></h3>
+
+                    <div class="verso-form-row">
+                        <div class="verso-form-col">
+                            <label class="verso-label">Décrivez le motif <span style="color: #e74c3c;">*</span></label>
+                            <textarea name="motif" required class="verso-textarea" rows="6"></textarea>
+                        </div>
                     </div>
+                </div>
 
-                    <div id="form-message" class="verso-form-message" style="display: none;"></div>
-                </form>
-            </div>
+                <!-- SECTION 5: PIÈCES JOINTES -->
+                <div class="verso-form-section">
+                    <h3 class="verso-section-title">5. Pièces Jointes <span style="color: #999; font-weight: normal;">(Optionnel)</span></h3>
+                    <p class="verso-section-desc">Joignez des photos ou documents utiles (max 5 fichiers, 10 MB par fichier, 30 MB total)</p>
+
+                    <div class="verso-form-row">
+                        <div class="verso-form-col">
+                            <label class="verso-label">Fichiers</label>
+                            <input type="file" id="fichiers" name="fichiers" multiple class="verso-input">
+                            <div id="file-preview" style="margin-top: 15px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBMIT BUTTONS -->
+                <div class="verso-form-actions">
+                    <button type="submit" class="verso-btn verso-btn-primary">Envoyer la Demande</button>
+                    <button type="reset" class="verso-btn verso-btn-secondary">Réinitialiser</button>
+                </div>
+
+                <div id="form-message" class="verso-form-message" style="display: none;"></div>
+            </form>
         </div>
 
         <!-- Sidebar Info -->
-        <div class="et_pb_column et_pb_column_1_3 et_medium_column_1_4 et_small_column_4_4">
-            <div class="et_pb_module et_pb_text verso-sidebar">
-                <div class="et_pb_text_inner">
-                    <h4 style="color: #1c2445; margin-bottom: 15px;">À Propos</h4>
-                    <p style="color: #666; font-size: 14px; line-height: 1.6;">Ce formulaire vous permet de soumettre une demande de consultation vétérinaire directement à notre équipe.</p>
+        <div class="verso-sidebar">
+            <h4 style="color: #1c2445; margin-top: 0; margin-bottom: 15px; font-size: 18px; font-weight: 600;">À Propos</h4>
+            <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0 0 25px 0;">Ce formulaire vous permet de soumettre une demande de consultation vétérinaire directement à notre équipe Verso. Toutes les informations sont traitées de manière confidentielle.</p>
 
-                    <h4 style="color: #1c2445; margin-top: 25px; margin-bottom: 15px;">Points Importants</h4>
-                    <ul style="color: #666; font-size: 14px; line-height: 1.8; list-style: none; padding: 0;">
-                        <li style="margin-bottom: 10px;">✓ Les champs marqués * sont obligatoires</li>
-                        <li style="margin-bottom: 10px;">✓ Votre email doit être valide</li>
-                        <li style="margin-bottom: 10px;">✓ Joignez les photos/documents pertinents</li>
-                        <li>✓ Vous recevrez une confirmation par email</li>
-                    </ul>
-                </div>
-            </div>
+            <h4 style="color: #1c2445; margin-bottom: 15px; font-size: 18px; font-weight: 600;">Avant de Soumettre</h4>
+            <ul style="color: #666; font-size: 14px; line-height: 1.8; list-style: none; padding: 0; margin: 0;">
+                <li style="margin-bottom: 10px;">✓ Les champs marqués * sont obligatoires</li>
+                <li style="margin-bottom: 10px;">✓ Votre email doit être valide</li>
+                <li style="margin-bottom: 10px;">✓ Joignez les photos/documents pertinents</li>
+                <li style="margin-bottom: 10px;">✓ Délai de réponse: 24-48h</li>
+                <li>✓ Vous recevrez une confirmation</li>
+            </ul>
         </div>
     </div>
 </div>
@@ -656,20 +646,25 @@ function verso_create_consultation_page() {
 }
 
 .verso-form-section {
-    margin-bottom: 40px;
+    margin-bottom: 50px;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    border-left: 4px solid #e74c3c;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .verso-section-title {
     color: #1c2445;
     font-size: 20px;
     font-weight: 600;
-    margin-bottom: 5px;
-    padding-bottom: 10px;
+    margin: 0 0 5px 0;
+    padding-bottom: 12px;
     border-bottom: 2px solid #e74c3c;
 }
 
 .verso-section-desc {
-    color: #999;
+    color: #888;
     font-size: 14px;
     margin: 10px 0 20px 0;
 }
@@ -704,7 +699,7 @@ function verso_create_consultation_page() {
     border-radius: 4px;
     font-size: 14px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .verso-input:focus,
@@ -717,6 +712,7 @@ function verso_create_consultation_page() {
 .verso-textarea {
     resize: vertical;
     min-height: 120px;
+    font-family: inherit;
 }
 
 .verso-form-actions {
@@ -779,13 +775,38 @@ function verso_create_consultation_page() {
 
 .verso-sidebar {
     background: white;
-    padding: 25px;
-    border-radius: 4px;
-    border-left: 4px solid #e74c3c;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 30px;
+    border-radius: 8px;
+    border-left: 4px solid #1c2445;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 100px;
+}
+
+@media (max-width: 968px) {
+    .verso-consultation-wrapper > div,
+    div[style*="grid-template-columns: 2fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .verso-sidebar {
+        position: static;
+    }
 }
 
 @media (max-width: 768px) {
+    .verso-hero-section {
+        padding: 60px 20px !important;
+    }
+
+    .verso-hero-section h1 {
+        font-size: 32px !important;
+    }
+
+    .verso-hero-section p {
+        font-size: 16px !important;
+    }
+
     .verso-form-row {
         grid-template-columns: 1fr;
     }
@@ -793,38 +814,13 @@ function verso_create_consultation_page() {
     .verso-form-actions {
         grid-template-columns: 1fr;
     }
-}
-</style>
-<!-- /wp:html -->';
 
-    if ($page) {
-        // Update existing page
-        wp_update_post([
-            'ID'           => $page->ID,
-            'post_content' => $form_html,
-            'post_status'  => 'publish',
-        ]);
-        return $page->ID;
-    } else {
-        // Create new page
-        $page_id = wp_insert_post([
-            'post_title'   => 'Demande de Consultation',
-            'post_name'    => 'demande-de-consultation',
-            'post_content' => $form_html,
-            'post_status'  => 'publish',
-            'post_type'    => 'page',
-        ]);
-        return $page_id;
+    .verso-form-section {
+        padding: 20px;
+        margin-bottom: 30px;
     }
 }
-
-// Lazy-initialize consultation page if missing
-add_action('wp_loaded', 'verso_lazy_init_page');
-
-function verso_lazy_init_page() {
-    // Check if page exists, if not create it
-    $page = get_page_by_path('demande-de-consultation');
-    if (!$page) {
+</style>';
         verso_create_consultation_page();
     }
 }
