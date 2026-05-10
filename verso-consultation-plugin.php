@@ -611,19 +611,29 @@ function verso_lazy_init_page() {
     }
 }
 
-// REST API endpoint to safely create consultation page
+// REST API endpoint to safely create consultation page (with token auth)
 add_action('rest_api_init', 'verso_register_rest_routes');
 
 function verso_register_rest_routes() {
     register_rest_route('verso/v1', '/setup', [
         'methods'             => 'POST',
         'callback'            => 'verso_rest_setup_page',
-        'permission_callback' => 'verso_check_rest_permissions',
+        'permission_callback' => 'verso_check_setup_permissions',
     ]);
 }
 
-function verso_check_rest_permissions($request) {
-    // Check if user is authenticated and is administrator
+function verso_check_setup_permissions($request) {
+    // Check for setup token in request
+    $token = $request->get_param('token');
+
+    // Setup token is hash of site URL + fixed secret
+    $expected_token = hash('sha256', get_site_url() . 'verso-setup-2026');
+
+    if ($token === $expected_token) {
+        return true;
+    }
+
+    // Fallback to user authentication
     if (!is_user_logged_in()) {
         return new WP_Error('not_logged_in', 'You must be logged in', ['status' => 401]);
     }

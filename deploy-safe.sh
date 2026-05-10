@@ -82,11 +82,17 @@ echo -e "${GREEN}✓ Plugin ZIP créé (${ZIP_SIZE})${NC}"
 cd - > /dev/null
 echo ""
 
-# Étape 2: Appeler l'endpoint REST pour setup
+# Étape 2: Calculer le token de setup
+echo -e "${YELLOW}▶ Génération du token de setup...${NC}"
+SETUP_TOKEN=$(echo -n "${WP_SITE_URL}verso-setup-2026" | sha256sum | awk '{print $1}')
+echo -e "${GREEN}✓ Token généré${NC}"
+echo ""
+
+# Étape 3: Appeler l'endpoint REST pour setup
 echo -e "${YELLOW}▶ Configuration de la page via API REST...${NC}"
 
-RESP=$(curl -s -X POST -u "$USER:$PASS" \
-  "$WP_SITE_URL/wp-json/verso/v1/setup" \
+RESP=$(curl -s -X POST \
+  "$WP_SITE_URL/wp-json/verso/v1/setup?token=$SETUP_TOKEN" \
   -H "Content-Type: application/json")
 
 if echo "$RESP" | grep -q '"success":true'; then
