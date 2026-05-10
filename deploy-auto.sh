@@ -45,10 +45,19 @@ echo ""
 # Vérifier les prérequis
 echo -e "${YELLOW}▶ Vérification des prérequis...${NC}"
 
-if ! command -v $WP_CLI_PATH &> /dev/null; then
+if [[ "$WP_CLI_PATH" == *.phar ]]; then
+    # If it's a PHAR file, check if it exists
+    if [ ! -f "$WP_CLI_PATH" ]; then
+        echo -e "${RED}✗ WP-CLI PHAR non trouvé: $WP_CLI_PATH${NC}"
+        exit 1
+    fi
+    WP_CLI_CMD="php $WP_CLI_PATH"
+elif ! command -v $WP_CLI_PATH &> /dev/null; then
     echo -e "${RED}✗ WP-CLI non trouvé: $WP_CLI_PATH${NC}"
     echo "  Installez WP-CLI: https://wp-cli.org/#installing"
     exit 1
+else
+    WP_CLI_CMD="$WP_CLI_PATH"
 fi
 echo -e "${GREEN}✓ WP-CLI trouvé${NC}"
 
@@ -99,9 +108,9 @@ echo ""
 
 # Supprimer la version ancienne si elle existe
 echo -e "${YELLOW}▶ Suppression de la version existante...${NC}"
-if $WP_CLI_PATH plugin list --url="$WP_SITE_URL" | grep -q "$PLUGIN_SLUG"; then
-    $WP_CLI_PATH plugin deactivate "$PLUGIN_SLUG" --url="$WP_SITE_URL" 2>/dev/null || true
-    $WP_CLI_PATH plugin delete "$PLUGIN_SLUG" --url="$WP_SITE_URL" 2>/dev/null || true
+if $WP_CLI_CMD plugin list --url="$WP_SITE_URL" | grep -q "$PLUGIN_SLUG"; then
+    $WP_CLI_CMD plugin deactivate "$PLUGIN_SLUG" --url="$WP_SITE_URL" 2>/dev/null || true
+    $WP_CLI_CMD plugin delete "$PLUGIN_SLUG" --url="$WP_SITE_URL" 2>/dev/null || true
     echo -e "${GREEN}✓ Version existante supprimée${NC}"
 else
     echo -e "${YELLOW}  (Aucune version existante)${NC}"
@@ -110,7 +119,7 @@ echo ""
 
 # Installer la nouvelle version
 echo -e "${YELLOW}▶ Installation de la nouvelle version...${NC}"
-$WP_CLI_PATH plugin install "$TEMP_DIR/$PLUGIN_ZIP" \
+$WP_CLI_CMD plugin install "$TEMP_DIR/$PLUGIN_ZIP" \
     --url="$WP_SITE_URL" \
     --activate
 echo -e "${GREEN}✓ Plugin installé et activé${NC}"
@@ -118,7 +127,7 @@ echo ""
 
 # Étape 3: Vérifier l'installation
 echo -e "${YELLOW}▶ Vérification de l'installation...${NC}"
-if $WP_CLI_PATH plugin list --url="$WP_SITE_URL" | grep -q "verso-consultation-plugin.*active"; then
+if $WP_CLI_CMD plugin list --url="$WP_SITE_URL" | grep -q "verso-consultation-plugin.*active"; then
     echo -e "${GREEN}✓ Plugin est ACTIF${NC}"
 else
     echo -e "${RED}✗ Le plugin n'est pas actif!${NC}"
@@ -128,7 +137,7 @@ echo ""
 
 # Étape 4: Vérifier la page
 echo -e "${YELLOW}▶ Vérification de la page de consultation...${NC}"
-PAGE_ID=$($WP_CLI_PATH post list \
+PAGE_ID=$($WP_CLI_CMD post list \
     --url="$WP_SITE_URL" \
     --post_type=page \
     --name=demande-de-consultation \
@@ -136,7 +145,7 @@ PAGE_ID=$($WP_CLI_PATH post list \
     --format=ids)
 
 if [ -n "$PAGE_ID" ]; then
-    PAGE_URL=$($WP_CLI_PATH post get $PAGE_ID --url="$WP_SITE_URL" --field=url)
+    PAGE_URL=$($WP_CLI_CMD post get $PAGE_ID --url="$WP_SITE_URL" --field=url)
     echo -e "${GREEN}✓ Page trouvée${NC}"
     echo "  URL: $PAGE_URL"
 else
