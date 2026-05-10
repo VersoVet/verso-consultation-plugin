@@ -40,7 +40,22 @@ erp-connector (VetoPartner)
 
 ### 1. Form & Frontend
 
-**Fichiers**: `js/form.js`, `css/style.css`
+**Fichiers**: `js/form.js`, `css/style.css`, `verso-consultation-plugin.php` (verso_create_consultation_page)
+
+#### Page Structure (Divi Builder Compatible)
+- **HTML structure**: Uses et_pb_section, et_pb_row, et_pb_column CSS classes
+- **Layout**: Hero header + 2-column form layout (2/3 form + 1/3 sidebar)
+- **Header**: Centered title "Demande de Consultation" with description
+- **Sidebar**: "À Propos" + "Points Importants" informational sections
+- **Responsive**: Single-column on mobile (max-width: 768px)
+
+#### Professional Styling
+- **Color scheme**: Primary #1c2445 (dark) + Accent #e74c3c (red)
+- **Typography**: Modern sans-serif with proper hierarchy
+- **Form sections**: 5 distinct sections with red underline headers
+- **Input styling**: Professional borders, focus states with colored shadow
+- **Buttons**: Hover effects, smooth transitions, uppercase labels
+- **Messages**: Success (green) and error (red) styling with icons
 
 #### Validation Côté Client (JS)
 - Required fields: `owner_nom`, `owner_prenom`, `owner_email`, `owner_telephone`, `animal_nom`, `animal_espece`, `motif`
@@ -50,11 +65,12 @@ erp-connector (VetoPartner)
 - Submit button: Disabled during POST
 
 #### UX Patterns
-- `.was-validated` class for Bootstrap validation styling
+- Form messages styled inline with success/error colors
 - Loading spinner on submit
 - Success message with UUID (auto-fade 3s)
 - Error messages with specific details
-- Scroll animation on form submission
+- Smooth focus transitions on inputs
+- Professional hover states on buttons
 
 ---
 
@@ -537,7 +553,8 @@ Utilise prepared statements — safe contre SQL injection.
 
 | Version | Date | Changes |
 |---------|------|---------|
-| **3.1.0** | 2026-05-09 | File upload support + ERP metadata + security hardening |
+| **3.2.1** | 2026-05-09 | Professional Divi Builder formulaire with hero header, 2-column layout, improved styling |
+| 3.1.0 | 2026-05-09 | File upload support + ERP metadata + security hardening |
 | 3.0.0 | 2026-05-09 | Full IMAP integration + safe deployment |
 | 2.0.0 | 2026-05-05 | Email attachments via PHP wp_mail() |
 | 1.0.0 | 2026-04-20 | Initial WordPress plugin |
