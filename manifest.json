@@ -2,10 +2,11 @@
   "core": {
     "name": "verso-consultation-plugin",
     "type": "custom",
-    "version": "3.0.0",
-    "description": "WordPress plugin for consultation form submissions with email notifications",
+    "version": "3.2.1",
+    "description": "Professional consultation form with secure file uploads, email notifications, and ERP integration",
     "brain_area": "cerebellum",
-    "author": "Verso Vet"
+    "author": "Verso Vet",
+    "repository_url": "https://github.com/VersoVet/verso-consultation-plugin"
   },
   "forge": {
     "type": "custom",
