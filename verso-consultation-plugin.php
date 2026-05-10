@@ -397,20 +397,42 @@ function verso_build_confirmation_text($owner_prenom, $owner_nom, $animal_nom, $
 
 // Send confirmation emails to owner and optionally vet
 function verso_send_confirmation_emails($owner_nom, $owner_prenom, $owner_email, $vet_email, $vet_clinique, $animal_nom, $animal_espece, $uuid) {
-    $text = verso_build_confirmation_text($owner_prenom, $owner_nom, $animal_nom, $animal_espece, $uuid);
-    $subject = "[Verso Vet] Confirmation de votre demande — Réf. {$uuid}";
     $headers = [
         'Content-Type: text/plain; charset=UTF-8',
         'From: Verso Vet <consultations@verso-vet.com>',
     ];
 
-    // Email to owner
-    wp_mail($owner_email, $subject, $text, $headers);
+    // EMAIL TO OWNER - Confirmation of submission
+    $owner_subject = "[Verso Vet] Confirmation de votre demande de consultation — Réf. {$uuid}";
+    $owner_text = "Bonjour {$owner_prenom} {$owner_nom},\n\n" .
+                  "Merci d'avoir soumis une demande de consultation pour {$animal_nom}.\n\n" .
+                  "Nous avons bien reçu votre dossier et nos experts l'examineront attentivement. " .
+                  "Nous vous contacterons dans les meilleurs délais pour discuter des prochaines étapes et du suivi de votre animal.\n\n" .
+                  "Votre numéro de référence est : {$uuid}\n" .
+                  "Veuillez le conserver pour toute correspondance future.\n\n" .
+                  "Cordialement,\n" .
+                  "L'équipe Verso Vet\n" .
+                  "consultations@verso-vet.com";
 
-    // Email to clinic (if provided)
+    wp_mail($owner_email, $owner_subject, $owner_text, $headers);
+
+    // EMAIL TO VET - Notification of new case
     if (!empty($vet_email)) {
-        $vet_text = "Bonjour,\n\nUne demande de consultation a été soumise via votre client {$owner_prenom} {$owner_nom}.\n\n" . $text;
-        wp_mail($vet_email, "[Verso Vet] Demande de consultation — {$animal_nom} ({$animal_espece})", $vet_text, $headers);
+        $vet_subject = "[Verso Vet] Nouvelle demande de consultation — Patient de votre suivi";
+        $vet_text = "Bonjour,\n\n" .
+                    "Nous vous remercions de votre confiance. Une demande de consultation concernant l'un de vos patients " .
+                    "a été soumise via notre plateforme de consultation spécialisée.\n\n" .
+                    "Détails de la demande :\n" .
+                    "• Animal : {$animal_nom} ({$animal_espece})\n" .
+                    "• Propriétaire : {$owner_prenom} {$owner_nom}\n" .
+                    "• Numéro de référence : {$uuid}\n\n" .
+                    "Nous examinerons cette demande attentivement et vous tiendrons informé de l'évolution du suivi de votre patient. " .
+                    "Nous restons à votre entière disposition pour toute question ou information complémentaire.\n\n" .
+                    "Cordialement,\n" .
+                    "L'équipe Verso Vet\n" .
+                    "consultations@verso-vet.com";
+
+        wp_mail($vet_email, $vet_subject, $vet_text, $headers);
     }
 }
 
