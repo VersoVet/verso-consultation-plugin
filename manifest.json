@@ -2,7 +2,7 @@
   "core": {
     "name": "verso-consultation-plugin",
     "type": "custom",
-    "version": "3.2.1",
+    "version": "3.3.0",
     "description": "Professional consultation form with secure file uploads, email notifications, and ERP integration",
     "brain_area": "cerebellum",
     "author": "Verso Vet",
