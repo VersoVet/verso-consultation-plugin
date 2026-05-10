@@ -1,9 +1,13 @@
 <?php
 /**
  * Plugin Name: Verso Consultation Form
+ * Plugin URI: https://github.com/VersoVet/verso-consultation-plugin
  * Description: Professional consultation form with email notifications and secure file uploads
- * Version: 3.1.0
+ * Version: 3.2.0
  * Author: Verso Vet
+ * License: GPL v2 or later
+ * Text Domain: verso-consultation-plugin
+ * Domain Path: /languages
  */
 
 if (!defined('ABSPATH')) {
