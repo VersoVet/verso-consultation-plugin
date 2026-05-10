@@ -51,8 +51,9 @@ PASS=$(echo "$CREDS" | cut -d: -f2)
 echo -e "${GREEN}✓ Credentials chargés (user: $USER)${NC}"
 echo ""
 
-# Étape 1: Créer le ZIP localement
-echo -e "${YELLOW}▶ Création du ZIP du plugin (local)...${NC}"
+# Étape 1: Lire la version et créer le ZIP localement
+PLUGIN_VERSION=$(cat VERSION)
+echo -e "${YELLOW}▶ Création du ZIP du plugin (local - v${PLUGIN_VERSION})...${NC}"
 TEMP_DIR="/tmp/verso-plugin-$$"
 mkdir -p "$TEMP_DIR/$PLUGIN_SLUG"
 
@@ -75,10 +76,11 @@ EOF
 fi
 
 cd "$TEMP_DIR"
-zip -r verso-consultation-plugin.zip verso-consultation-plugin/ > /dev/null 2>&1
-ZIP_PATH="$TEMP_DIR/verso-consultation-plugin.zip"
-ZIP_SIZE=$(du -h verso-consultation-plugin.zip | cut -f1)
-echo -e "${GREEN}✓ Plugin ZIP créé (${ZIP_SIZE})${NC}"
+ZIP_NAME="verso-consultation-plugin-v${PLUGIN_VERSION}.zip"
+zip -r "$ZIP_NAME" verso-consultation-plugin/ > /dev/null 2>&1
+ZIP_PATH="$TEMP_DIR/$ZIP_NAME"
+ZIP_SIZE=$(du -h "$ZIP_NAME" | cut -f1)
+echo -e "${GREEN}✓ Plugin ZIP créé: ${ZIP_NAME} (${ZIP_SIZE})${NC}"
 cd - > /dev/null
 echo ""
 

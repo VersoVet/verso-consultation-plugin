@@ -99,9 +99,9 @@ echo -e "${GREEN}✓ Git tag: v$NEW_VERSION${NC}"
 
 echo ""
 
-# Créer le ZIP
+# Créer le ZIP avec version dans le nom
 echo -e "${YELLOW}▶ Building distribution...${NC}"
-rm -rf dist/verso-consultation-plugin dist/verso-consultation-plugin.zip
+rm -rf dist/verso-consultation-plugin dist/verso-consultation-plugin*.zip
 mkdir -p dist/verso-consultation-plugin
 
 cp verso-consultation-plugin.php dist/verso-consultation-plugin/
@@ -110,9 +110,12 @@ cp -r css/ dist/verso-consultation-plugin/ 2>/dev/null || true
 cp readme.txt dist/verso-consultation-plugin/ 2>/dev/null || true
 
 cd dist
-zip -r verso-consultation-plugin.zip verso-consultation-plugin/ > /dev/null 2>&1
-ZIP_SIZE=$(du -h verso-consultation-plugin.zip | cut -f1)
-echo -e "${GREEN}✓ ZIP created: ${ZIP_SIZE}${NC}"
+ZIP_NAME="verso-consultation-plugin-v${NEW_VERSION}.zip"
+zip -r "$ZIP_NAME" verso-consultation-plugin/ > /dev/null 2>&1
+ZIP_SIZE=$(du -h "$ZIP_NAME" | cut -f1)
+echo -e "${GREEN}✓ ZIP created: ${ZIP_NAME} (${ZIP_SIZE})${NC}"
+# Also create symlink for latest
+ln -sf "$ZIP_NAME" verso-consultation-plugin.zip
 cd ..
 
 echo ""
