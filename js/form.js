@@ -321,25 +321,31 @@ jQuery(document).ready(function ($) {
             contentType: false,
             timeout: 60000,
             success: function (response) {
-                showMessage(
-                    '✅ ' + response.message,
-                    'success'
-                );
-                resetFormFields();
+                // WordPress wraps response in { success: true, data: {...} }
+                const data = response.data || response;
+
+                // Populate confirmation section
+                $('#conf-owner-name').text(data.owner_prenom + ' ' + data.owner_nom);
+                $('#conf-animal-name').text(data.animal_nom);
+                $('#conf-owner-email').text(data.owner_email);
+                $('#conf-uuid').text(data.uuid);
+
+                // Hide all form sections (Divi et_pb_section)
+                $('.et_pb_section').hide();
+
+                // Show confirmation section
+                $('#verso-confirmation').show();
+
+                // Reset selectedFiles array and file list UI
+                selectedFiles = [];
+                $('#file-list').empty().hide();
                 $('#file-preview').empty();
-                // Keep owner section visible, hide vet section after submission
-                $('#owner-section').removeClass('verso-hidden');
-                $('#vet-section').addClass('verso-hidden');
+                resetFormFields();
 
-                // Scroll to message
+                // Scroll to confirmation
                 $('html, body').animate({
-                    scrollTop: messageEl.offset().top - 100
-                }, 500);
-
-                // Reset form after 3 seconds
-                setTimeout(() => {
-                    messageEl.fadeOut();
-                }, 3000);
+                    scrollTop: $('#verso-confirmation').offset().top - 100
+                }, 600);
             },
             error: function (xhr, status, error) {
                 let message = 'Une erreur est survenue. Veuillez réessayer.';

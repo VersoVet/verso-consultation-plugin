@@ -311,9 +311,16 @@ function verso_handle_consultation_ajax() {
             $vet_nom, $vet_prenom, $vet_clinique, $vet_email, $vet_telephone,
             $animal_nom, $animal_espece, $animal_race, $motif);
 
+        // Send confirmation emails to owner and optionally vet
+        verso_send_confirmation_emails($owner_nom, $owner_prenom, $owner_email, $vet_email, $vet_clinique, $animal_nom, $animal_espece, $uuid);
+
         wp_send_json_success([
             'message' => 'Demande envoyée avec succès',
-            'uuid' => $uuid
+            'uuid' => $uuid,
+            'owner_nom' => $owner_nom,
+            'owner_prenom' => $owner_prenom,
+            'owner_email' => $owner_email,
+            'animal_nom' => $animal_nom,
         ]);
     } else {
         wp_send_json_error('Erreur lors de l\'envoi. Veuillez réessayer.');
@@ -375,6 +382,36 @@ function verso_store_consultation_in_db(
         'vet_telephone' => $vet_telephone,
         'status' => 'new'
     ]);
+}
+
+// Build confirmation message (used in both email and page)
+function verso_build_confirmation_text($owner_prenom, $owner_nom, $animal_nom, $animal_espece, $uuid) {
+    return "Merci {$owner_prenom} {$owner_nom},\n\n" .
+           "Votre demande de consultation pour {$animal_nom} ({$animal_espece}) a bien été reçue par notre équipe Verso Vet.\n\n" .
+           "Nous examinerons votre dossier et vous contacterons dans les meilleurs délais (généralement sous 24 à 48 heures).\n\n" .
+           "Numéro de référence : {$uuid}\n\n" .
+           "Cordialement,\n" .
+           "L'équipe Verso Vet\n" .
+           "consultations@verso-vet.com";
+}
+
+// Send confirmation emails to owner and optionally vet
+function verso_send_confirmation_emails($owner_nom, $owner_prenom, $owner_email, $vet_email, $vet_clinique, $animal_nom, $animal_espece, $uuid) {
+    $text = verso_build_confirmation_text($owner_prenom, $owner_nom, $animal_nom, $animal_espece, $uuid);
+    $subject = "[Verso Vet] Confirmation de votre demande — Réf. {$uuid}";
+    $headers = [
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: Verso Vet <consultations@verso-vet.com>',
+    ];
+
+    // Email to owner
+    wp_mail($owner_email, $subject, $text, $headers);
+
+    // Email to clinic (if provided)
+    if (!empty($vet_email)) {
+        $vet_text = "Bonjour,\n\nUne demande de consultation a été soumise via votre client {$owner_prenom} {$owner_nom}.\n\n" . $text;
+        wp_mail($vet_email, "[Verso Vet] Demande de consultation — {$animal_nom} ({$animal_espece})", $vet_text, $headers);
+    }
 }
 
 function verso_build_email_body(
@@ -617,6 +654,26 @@ function verso_create_consultation_page() {
   <button type="reset" style="background-color:#f0f0f0; color:#333; padding:14px 30px; font-weight:600; border:none; border-radius:4px; cursor:pointer; font-size:16px; text-transform:uppercase;">Réinitialiser</button>
 </div>
 <div id="form-message" style="display:none; margin-top:20px; padding:15px; border-radius:4px;"></div>[/et_pb_code][/et_pb_column][/et_pb_row][/et_pb_section]
+
+[et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="#f0fdf4" custom_padding="50px||30px|||" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" width="90%" max_width="600px" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_code _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"]
+<div id="verso-confirmation" style="display:none; text-align:center; padding:40px; background:white; border:3px solid #4caf50; border-radius:8px; box-shadow:0 4px 12px rgba(76,175,80,0.15);">
+  <div style="font-size:80px; margin-bottom:20px; line-height:1;">✅</div>
+  <h2 style="color:#1c2445; margin-bottom:15px; font-size:28px;">Demande bien reçue !</h2>
+  <p style="font-size:16px; color:#333; margin-bottom:10px;">Merci <strong id="conf-owner-name"></strong>,</p>
+  <p style="font-size:15px; color:#555; line-height:1.6; margin-bottom:15px;">Votre demande de consultation pour <strong id="conf-animal-name"></strong> a bien été reçue par notre équipe Verso Vet.</p>
+  <p style="font-size:15px; color:#555; line-height:1.6; margin-bottom:20px;">Nous examinerons votre dossier et vous contacterons dans les meilleurs délais (généralement sous 24 à 48 heures).</p>
+  <p style="font-size:14px; color:#666; margin-bottom:20px;">Un email de confirmation a été envoyé à <strong id="conf-owner-email"></strong>.</p>
+
+  <div style="margin:30px 0; padding:20px; background:#f9f9f9; border-radius:4px; display:inline-block;">
+    <div style="color:#666; font-size:12px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Numéro de référence</div>
+    <div id="conf-uuid" style="font-family:'Courier New', monospace; font-size:18px; color:#1c2445; font-weight:bold; letter-spacing:2px;"></div>
+  </div>
+
+  <p style="font-size:14px; color:#888; margin-top:30px; padding-top:20px; border-top:1px solid #e0e0e0;">
+    Questions ? Contactez-nous à <strong>consultations@verso-vet.com</strong>
+  </p>
+</div>
+[/et_pb_code][/et_pb_column][/et_pb_row][/et_pb_section]
 EOT;
 
     // Create or update page
