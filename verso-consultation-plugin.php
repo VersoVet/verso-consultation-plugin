@@ -479,8 +479,10 @@ function verso_create_consultation_page() {
 
     // Professional form layout with hero header image section
     $form_html = '<!-- Hero Section with Background Image -->
-<div class="verso-hero-section" style="background: linear-gradient(135deg, #1c2445 0%, #2d3a5c 100%); padding: 100px 20px; text-align: center; color: white; margin-bottom: 60px;">
-    <div style="max-width: 900px; margin: 0 auto;">
+<div class="verso-hero-section" style="background: url(\'https://verso-vet.com/wp-content/uploads/2025/01/VirginieB-74721280px-72dpi.jpg\') center/cover no-repeat; padding: 120px 20px; text-align: center; color: white; margin-bottom: 60px; position: relative;">
+    <!-- Overlay for text readability -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(28, 36, 69, 0.7);"></div>
+    <div style="max-width: 900px; margin: 0 auto; position: relative; z-index: 1;">
         <h1 style="font-size: 48px; margin: 0 0 20px 0; font-weight: 300; letter-spacing: 1px;">Demande de Consultation</h1>
         <p style="font-size: 20px; margin: 0; font-weight: 300; opacity: 0.95; line-height: 1.6;">Remplissez ce formulaire pour nous soumettre votre demande de consultation vétérinaire.<br/>Notre équipe vous répondra dans les meilleurs délais.</p>
     </div>
