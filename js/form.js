@@ -336,16 +336,11 @@ jQuery(document).ready(function ($) {
                 $('#file-preview').empty();
                 resetFormFields();
 
-                // Hide form sections but NOT the confirmation section
-                // Find all et_pb_section and hide them, except the one containing #verso-confirmation
-                $('.et_pb_section').each(function() {
-                    if (!$(this).find('#verso-confirmation').length) {
-                        $(this).hide();
-                    }
-                });
+                // Hide form section
+                $('#verso-form-section').hide();
 
-                // Ensure confirmation section and its parent are visible
-                $('#verso-confirmation').show().closest('.et_pb_section').show();
+                // Show confirmation section
+                $('#verso-confirmation').show();
 
                 // Scroll to confirmation
                 $('html, body').animate({
@@ -483,4 +478,26 @@ jQuery(document).ready(function ($) {
         };
         return text.replace(/[&<>"']/g, m => map[m]);
     }
+
+    /**
+     * Handle "Submit another request" button
+     */
+    $(document).on('click', '#new-consultation-btn', function (e) {
+        e.preventDefault();
+
+        // Reset selectedFiles and form
+        selectedFiles = [];
+        $('#file-list').empty().hide();
+        $('#file-preview').empty();
+        resetFormFields();
+
+        // Hide confirmation, show form
+        $('#verso-confirmation').hide();
+        $('#verso-form-section').show();
+
+        // Scroll to form top
+        $('html, body').animate({
+            scrollTop: $('#verso-form-section').offset().top - 100
+        }, 600);
+    });
 });

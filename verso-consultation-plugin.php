@@ -549,6 +549,8 @@ function verso_create_consultation_page() {
     // Divi Builder page structure (native format, no theme_builder_area)
     // Pattern: use proper Divi 4.27.2 shortcodes compatible with Visual Builder
     $form_html = <<<'EOT'
+<!-- VERSO FORM CONTAINER START -->
+<div id="verso-form-section">
 [et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="rgba(0,0,0,0.8)" background_image="https://verso-vet.com/wp-content/uploads/2025/01/VirginieB-74721280px-72dpi.jpg" background_blend="darken" custom_margin="-150px||||false|false" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" custom_margin="300px||150px||false|false" custom_margin_tablet="300px||150px||false|false" custom_margin_phone="200px||100px||false|false" custom_margin_last_edited="on|phone" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_text _builder_version="4.27.2" _module_preset="default" header_font="Barlow|700|||||||" header_text_align="center" header_text_color="#FFFFFF" header_font_size="48px" header_font_size_tablet="48px" header_font_size_phone="34px" header_font_size_last_edited="on|phone" global_colors_info="{}"]<h1>Demande de Consultation Vétérinaire</h1>[/et_pb_text][et_pb_text _builder_version="4.27.2" _module_preset="default" text_font="Barlow||||||||" text_text_color="#FFFFFF" text_font_size="18px" text_orientation="center" global_colors_info="{}"]<p>Remplissez ce formulaire pour nous soumettre votre demande de consultation.<br/>Notre équipe vous répondra dans les meilleurs délais.</p>[/et_pb_text][/et_pb_column][/et_pb_row][/et_pb_section]
 
 [et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="#FFFFFF" custom_padding="50px||30px|||" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" width="90%" max_width="900px" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_text _builder_version="4.27.2" _module_preset="default" header_font="Barlow|700|||||||" header_text_color="#1c2445" global_colors_info="{}"]<h2 style="color:#1c2445; border-bottom:2px solid #e74c3c; padding-bottom:10px; margin-bottom:25px;">1. Informations Propriétaire</h2>[/et_pb_text][et_pb_code _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"]<style>.verso-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:15px;}.verso-row-full{grid-template-columns:1fr !important;}.verso-label{display:block;font-weight:600;margin-bottom:6px;color:#333;}.verso-input{width:100%;padding:12px 15px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;font-size:14px;transition:border-color 0.3s;}.verso-input:focus{outline:none;border-color:#e74c3c;box-shadow:0 0 0 3px rgba(231,76,60,0.1);}@media(max-width:640px){.verso-row{grid-template-columns:1fr;}}</style>
@@ -676,7 +678,10 @@ function verso_create_consultation_page() {
   <button type="reset" style="background-color:#f0f0f0; color:#333; padding:14px 30px; font-weight:600; border:none; border-radius:4px; cursor:pointer; font-size:16px; text-transform:uppercase;">Réinitialiser</button>
 </div>
 <div id="form-message" style="display:none; margin-top:20px; padding:15px; border-radius:4px;"></div>[/et_pb_code][/et_pb_column][/et_pb_row][/et_pb_section]
+</div>
+<!-- VERSO FORM CONTAINER END -->
 
+<!-- VERSO CONFIRMATION SECTION START -->
 [et_pb_section fb_built="1" _builder_version="4.27.2" _module_preset="default" background_color="#f0fdf4" custom_padding="50px||30px|||" global_colors_info="{}"][et_pb_row _builder_version="4.27.2" _module_preset="default" width="90%" max_width="600px" global_colors_info="{}"][et_pb_column type="4_4" _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"][et_pb_code _builder_version="4.27.2" _module_preset="default" global_colors_info="{}"]
 <div id="verso-confirmation" style="display:none; text-align:center; padding:40px; background:white; border:3px solid #4caf50; border-radius:8px; box-shadow:0 4px 12px rgba(76,175,80,0.15);">
   <div style="font-size:80px; margin-bottom:20px; line-height:1;">✅</div>
@@ -694,8 +699,13 @@ function verso_create_consultation_page() {
   <p style="font-size:14px; color:#888; margin-top:30px; padding-top:20px; border-top:1px solid #e0e0e0;">
     Questions ? Contactez-nous à <strong>consultations@verso-vet.com</strong>
   </p>
+
+  <div style="margin-top:30px;">
+    <button type="button" id="new-consultation-btn" style="background-color:#e74c3c; color:white; padding:14px 30px; font-weight:600; border:none; border-radius:4px; cursor:pointer; font-size:16px; text-transform:uppercase;">Soumettre une autre demande</button>
+  </div>
 </div>
 [/et_pb_code][/et_pb_column][/et_pb_row][/et_pb_section]
+<!-- VERSO CONFIRMATION SECTION END -->
 EOT;
 
     // Create or update page
