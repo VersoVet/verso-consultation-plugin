@@ -2,7 +2,7 @@
 
 Professional consultation request form for veterinary practice with secure file uploads, email notifications, and ERP integration.
 
-[![Version](https://img.shields.io/badge/version-3.2.1-blue.svg)](https://github.com/VersoVet/verso-consultation-plugin/releases)
+[![Version](https://img.shields.io/badge/version-3.5.1-blue.svg)](https://github.com/VersoVet/verso-consultation-plugin/releases)
 [![License](https://img.shields.io/badge/license-GPL%20v2-green.svg)](LICENSE)
 [![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/PHP-5.6%2B-blue.svg)](https://php.net)
@@ -12,11 +12,11 @@ Professional consultation request form for veterinary practice with secure file 
 ## ✨ Features
 
 ### 📋 Complete Consultation Form
-- **Owner Information** - Name, email, phone, address
+- **Owner Information** - Name, email, phone, complete address (street, postal code, city, country)
 - **Veterinary Reference** - Optional clinic and vet details  
 - **Patient Details** - Animal name, species, breed
 - **Consultation Reason** - Detailed description
-- **File Attachments** - Up to 10 files (5 MB each, 50 MB total)
+- **File Attachments** - Up to 10 files (5 MB each, 50 MB total) with progressive upload UI
 
 ### 🔒 Enterprise Security
 - **Path Traversal Protection** - 4-layer validation (UUID regex + realpath + strpos)
@@ -27,14 +27,23 @@ Professional consultation request form for veterinary practice with secure file 
 
 ### 📧 Smart Email Integration
 - **Auto-dispatch** to consultations@verso-vet.com
+- **Differentiated emails** - Owner confirmation + vet clinic notification
 - **File attachments** - JSON metadata + uploaded files
 - **Proper headers** - SPF/DKIM compliant (OVH compatible)
 - **Email metadata** - Original filename, MIME type, size included
+- **Reference tracking** - UUID in all communications
+
+### 🎨 Professional User Experience
+- **Inline confirmation** - Form and confirmation on same page
+- **Progressive upload** - Add files one by one with visual feedback
+- **Smooth transitions** - Toggle between form and confirmation
+- **Always-visible header** - Logo and navigation stay during transitions
+- **Reference tracking** - UUID displayed for consultation tracking
 
 ### 🚀 Multiple Deployment Methods
 - **ZIP Upload** - Manual via WordPress Admin (2 min)
 - **WP-CLI Local** - Automated with PHP (30 sec)  
-- **REST API** - Token-based remote deployment (recommended)
+- **GitHub** - Version control and CI/CD ready
 
 ---
 
@@ -44,10 +53,10 @@ Professional consultation request form for veterinary practice with secure file 
 
 ```bash
 # Download latest version
-wget https://github.com/VersoVet/verso-consultation-plugin/releases/download/v3.2.1/verso-consultation-plugin-v3.2.1.zip
+wget https://github.com/VersoVet/verso-consultation-plugin/releases/download/v3.5.1/verso-consultation-plugin-v3.5.1.zip
 
 # Upload via WordPress Admin
-# Extensions > Add New > Upload an Extension > verso-consultation-plugin-v3.2.1.zip
+# Extensions > Add New > Upload an Extension > verso-consultation-plugin-v3.5.1.zip
 # Click Install > Activate
 ```
 
@@ -105,6 +114,7 @@ verso-consultation-plugin/
 - **Max files:** 10 per submission
 - **Max file size:** 5 MB each
 - **Max total size:** 50 MB per submission
+- **Progressive UI** - Add files one at a time with animated progress bars
 
 ### Email Recipient
 Default: `consultations@verso-vet.com`

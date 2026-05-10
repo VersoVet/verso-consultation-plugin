@@ -1,16 +1,17 @@
 # verso-consultation-plugin - Guide de Développement Forge
 
-> **FICHIER GÉNÉRÉ PAR FORGE - À RÉGÉNÉRER SI BESOIN**: `forge regenerate-claude verso-consultation-plugin`
+> **Version**: 3.5.1 | **Status**: 🟢 PRODUCTION | **Last Updated**: 2026-05-10
 
 ---
 
 ## Écosystème verso-consultation-plugin
 
 ### Type de Skill
-- **Type**: `custom` (WordPress plugin, pas Python)
-- **Statut**: 🟢 PRODUCTION (v3.0.0)
+- **Type**: `custom` (WordPress plugin)
+- **Statut**: 🟢 PRODUCTION (v3.5.1)
 - **Port**: N/A (routing disabled - plugin WordPress uniquement)
 - **Target Deployment**: verso-vet.com (OVH, sans systemd)
+- **GitHub**: https://github.com/VersoVet/verso-consultation-plugin
 
 ### Cycle de Vie du Plugin
 ```
@@ -144,6 +145,7 @@ define('VERSO_UPLOAD_SUBDIR', 'verso-consultations');
 - Max **10 fichiers** par soumission
 - Max **5 MB** par fichier
 - Max **50 MB** total
+- **Progressive UI**: Les fichiers s'ajoutent un par un avec barre de progression
 
 #### MIME Whitelist (double vérification)
 ```
@@ -209,11 +211,19 @@ La fonction `verso_create_consultation_page()` génère la page `/demande-de-con
 - **Pas de dépendance Divi Builder**: fonctionne avec n'importe quel thème
 
 #### Sections du Formulaire
-1. **Propriétaire**: Nom, Prénom, Email, Téléphone, Adresse (tous requis)
+1. **Propriétaire** (requis): Nom, Prénom, Email, Téléphone, Adresse complète (rue, CP, ville, pays - France défaut)
 2. **Vétérinaire** (optionnel): Clinique, Nom, Email, Téléphone
 3. **Animal** (requis): Nom, Espèce, Race
 4. **Motif** (requis): Textarea description
-5. **Pièces jointes** (optionnel): Upload de fichiers, max 10, 5 MB chacun
+5. **Pièces jointes** (optionnel): Upload progressif de fichiers, max 10, 5 MB chacun, 50 MB total
+
+#### Post-Soumission
+- **Confirmation inline**: Message de remerciement sur la même page
+- **Bouton toggle**: "Soumettre une autre demande" pour revenir au formulaire
+- **Emails différenciés**: 
+  - Propriétaire: Confirmation de soumission
+  - Vétérinaire: Notification + assurance de suivi
+- **UUID de référence**: Affiché pour tracking
 
 ### Intégration ERP (Feature B)
 
@@ -299,25 +309,30 @@ git diff                                 # Review changes
 
 ## Déploiement
 
-### Prérequis
+### Option 1: ZIP via WordPress Admin (Recommandé)
+1. Télécharger: `/dist/verso-consultation-plugin-v3.5.1.zip`
+2. WordPress admin → Extensions → Importer une extension
+3. Sélectionner le ZIP
+4. Installer et activer
+
+### Option 2: Script scp (Direct)
 ```bash
 export OVH_SSH_PASS='votre_mot_de_passe'
-# (Credentials dans Vault: ovh_ssh_password — à supprimer selon CLAUDE.md root)
+./deploy-form.sh
 ```
 
-### Script `deploy-form.sh`
-- **Sûr**: scp only, pas de commandes distantes
-- **Cible**: `/homez.1657/versovx/www/wp-content/plugins/verso-consultation-plugin/`
-- **Fichiers**: verso-consultation-plugin.php, js/form.js, css/style.css
-- **Activation**: Manuel via WordPress admin (ou WP-CLI)
+### Prérequis
+- WordPress 5.0+
+- PHP 5.6+
+- Mail() ou SMTP configuré
 
 ### Étapes Post-Deploy
 1. WordPress admin → Plugins → Activate verso-consultation-plugin
-2. Créer page `/demande-de-consultation/`
+2. Page `/demande-de-consultation/` se crée automatiquement
 3. Tester formulaire via navigateur
-4. Vérifier email reçu à `consultations@verso-vet.com`
+4. Vérifier email reçu à `consultations@verso-vet.com` (et à l'email vétérinaire si renseigné)
 5. Vérifier consultation-requests IMAP monitor (cron toutes les 60s)
-6. Vérifier dans dashboard consultation-requests
+6. Tester toggle formulaire ↔ confirmation
 
 ---
 

@@ -1,24 +1,25 @@
 # TODO - Verso Consultation Plugin
 
-> **Status**: 🟢 **PRODUCTION** | Version 3.1.0 | Last Updated: 2026-05-09
+> **Status**: 🟢 **PRODUCTION** | Version 3.5.1 | Last Updated: 2026-05-10
 
 ## Current Status
-✅ **OPERATIONAL** - WordPress AJAX form + secure file uploads + email integration with consultation-requests skill.
+✅ **OPERATIONAL** - WordPress AJAX form + secure file uploads + differentiated emails + inline confirmation UX.
 
-**Latest (2026-05-09 - v3.1.0)**:
-- ✅ Secure file upload support (5 files max, 10MB each, 30MB total)
-- ✅ MIME type validation + extension whitelist (double verification)
-- ✅ Dedicated upload directory with path traversal protection
+**Latest (2026-05-10 - v3.5.1)**:
+- ✅ Complete address fields (street, postal code, city, country - France default)
+- ✅ Progressive multi-file upload UI (10 files max, 5MB each, 50MB total)
+- ✅ Animated progress bars for file selection
+- ✅ Differentiated confirmation emails (owner + vet clinic)
+- ✅ Professional post-submission confirmation section
+- ✅ Inline toggle between form and confirmation (same page)
+- ✅ Always-visible header during state transitions
+- ✅ UUID reference for consultation tracking
+- ✅ Secure file upload support with MIME validation
 - ✅ Safe deletion with UUID validation + realpath() confinement
-- ✅ File metadata in consultation.json (for ERP integration)
-- ✅ Email attachments include user files (consultation.json + uploaded files)
-- ✅ Autonomous cleanup after email dispatch (regardless of success/failure)
+- ✅ Autonomous cleanup after email dispatch
 - ✅ Form submission via AJAX (verso_submit_consultation action)
-- ✅ Email sending with JSON attachment (WordPress wp_mail)
-- ✅ From: header corrected for OVH SPF/DKIM compliance
-- ✅ Safe deployment script (scp only, no remote commands)
 - ✅ Full integration with consultation-requests skill (IMAP monitoring)
-- ✅ Consultation data with delete + ERP integrate capabilities
+- ✅ Safe deployment script (scp only, no remote commands)
 
 ---
 
@@ -201,7 +202,13 @@ Dashboard UI (delete + ERP integrate)
 
 | Version | Date | Notes |
 |---------|------|-------|
-| 3.1.0 | 2026-05-09 | **Secure file uploads + ERP metadata integration** - Max 5 files, MIME validation, path traversal protection, safe deletion |
-| 3.0.0 | 2026-05-09 | Full integration with consultation-requests delete + ERP features |
-| 2.0.0 | 2026-05-05 | IMAP-based architecture, native PHP mail() |
-| 1.0.0 | 2026-04-20 | Initial WordPress plugin |
+| 3.5.1 | 2026-05-10 | **Bug fix** - Keep header visible during form/confirmation toggle |
+| 3.5.0 | 2026-05-10 | **UX redesign** - Inline toggle between form and confirmation on same page + "Submit another request" button |
+| 3.4.3 | 2026-05-10 | **Bug fix** - Show confirmation section after submission |
+| 3.4.2 | 2026-05-10 | **Email improvements** - Differentiated owner and vet confirmation emails |
+| 3.4.1 | 2026-05-10 | **Confirmation emails** - Add professional post-submission UX + email notifications |
+| 3.4.0 | 2026-05-10 | **Form enhancement** - Complete address fields + multi-file upload UI (10 files, 5MB each) |
+| 3.1.0 | 2026-05-09 | **Secure file uploads** - MIME validation, path traversal protection, safe deletion |
+| 3.0.0 | 2026-05-09 | **Full integration** - consultation-requests delete + ERP features |
+| 2.0.0 | 2026-05-05 | **IMAP architecture** - Native PHP mail() |
+| 1.0.0 | 2026-04-20 | **Initial release** - WordPress plugin |
