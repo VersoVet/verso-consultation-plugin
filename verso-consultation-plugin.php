@@ -462,6 +462,136 @@ function verso_activate_plugin() {
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     dbDelta($sql);
+
+    // Create or update consultation request page with form HTML
+    verso_create_consultation_page();
+}
+
+function verso_create_consultation_page() {
+    global $wpdb;
+
+    // Check if page exists
+    $page = $wpdb->get_row("SELECT ID FROM {$wpdb->posts} WHERE post_name='demande-de-consultation' AND post_type='page' LIMIT 1");
+
+    $form_html = '<div id="verso-form" class="verso-consultation-form" style="max-width: 800px; margin: 20px 0;">
+    <h2 style="margin-bottom: 20px; color: #1c2445;">Formulaire de Demande de Consultation</h2>
+
+    <form id="verso-form" method="POST" enctype="multipart/form-data">
+        <!-- SECTION 1: PROPRIÉTAIRE -->
+        <div id="owner-section" style="margin-bottom: 35px;">
+            <h3 style="background: #1c2445; color: white; padding: 12px 16px; border-radius: 4px; margin: 0 0 20px 0; font-size: 16px;">1. Informations Propriétaire *</h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Nom *</label>
+                    <input type="text" name="owner_nom" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Prénom *</label>
+                    <input type="text" name="owner_prenom" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Email *</label>
+                <input type="email" name="owner_email" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Téléphone *</label>
+                    <input type="tel" name="owner_telephone" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Adresse *</label>
+                    <input type="text" name="owner_adresse" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: VÉTÉRINAIRE -->
+        <div id="vet-section" style="margin-bottom: 35px;">
+            <h3 style="background: #1c2445; color: white; padding: 12px 16px; border-radius: 4px; margin: 0 0 20px 0; font-size: 16px;">2. Vétérinaire Suivi (Optionnel)</h3>
+            <p style="font-size: 14px; color: #666; margin: 0 0 15px 0;">Renseignez si vous êtes suivi par un vétérinaire</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Nom Clinique</label>
+                    <input type="text" name="vet_clinique" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Vétérinaire</label>
+                    <input type="text" name="vet_nom" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: PATIENT/ANIMAL -->
+        <div id="animal-section" style="margin-bottom: 35px;">
+            <h3 style="background: #1c2445; color: white; padding: 12px 16px; border-radius: 4px; margin: 0 0 20px 0; font-size: 16px;">3. Patient Animal *</h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Nom *</label>
+                    <input type="text" name="animal_nom" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Espèce *</label>
+                    <select name="animal_espece" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                        <option value="">-- Sélectionner --</option>
+                        <option value="Chien">Chien</option>
+                        <option value="Chat">Chat</option>
+                        <option value="Oiseau">Oiseau</option>
+                        <option value="Lapin">Lapin</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Race</label>
+                <input type="text" name="animal_race" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <!-- SECTION 4: MOTIF -->
+        <div id="motif-section" style="margin-bottom: 35px;">
+            <h3 style="background: #1c2445; color: white; padding: 12px 16px; border-radius: 4px; margin: 0 0 20px 0; font-size: 16px;">4. Motif de la Consultation *</h3>
+
+            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Décrivez le motif *</label>
+            <textarea name="motif" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; min-height: 120px; font-family: sans-serif;"></textarea>
+        </div>
+
+        <!-- SECTION 5: PIÈCES JOINTES -->
+        <div style="margin-bottom: 35px;"><h3 style="background: #1c2445; color: white; padding: 12px 16px; border-radius: 4px; margin: 0 0 20px 0; font-size: 16px;">5. Pièces Jointes (Optionnel)</h3><p style="font-size: 14px; color: #666; margin: 0 0 15px 0;">Joignez des photos ou documents utiles (max 5 fichiers, 10 MB chacun)</p><label style="display: block; margin-bottom: 8px; font-weight: bold;">Fichiers</label><input type="file" id="fichiers" name="fichiers" multiple style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;"><div id="file-preview" style="margin-top: 10px;"></div></div>
+
+        <!-- SUBMIT -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button type="submit" style="padding: 12px; background: #1c2445; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s;">Envoyer la Demande</button>
+            <button type="reset" style="padding: 12px; background: #ccc; color: #333; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold;">Réinitialiser</button>
+        </div>
+    </form>
+
+    <div id="form-message" style="margin-top: 20px; padding: 12px; border-radius: 4px; display: none;"></div>
+</div>';
+
+    if ($page) {
+        // Update existing page
+        wp_update_post([
+            'ID'           => $page->ID,
+            'post_content' => $form_html,
+            'post_status'  => 'publish',
+        ]);
+    } else {
+        // Create new page
+        wp_insert_post([
+            'post_title'   => 'Demande de Consultation',
+            'post_name'    => 'demande-de-consultation',
+            'post_content' => $form_html,
+            'post_status'  => 'publish',
+            'post_type'    => 'page',
+        ]);
+    }
 }
 
 // Enqueue form JavaScript and styles
