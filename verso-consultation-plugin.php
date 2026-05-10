@@ -594,6 +594,17 @@ function verso_create_consultation_page() {
     }
 }
 
+// Lazy-initialize consultation page if missing
+add_action('wp_loaded', 'verso_lazy_init_page');
+
+function verso_lazy_init_page() {
+    // Check if page exists, if not create it
+    $page = get_page_by_path('demande-de-consultation');
+    if (!$page) {
+        verso_create_consultation_page();
+    }
+}
+
 // Enqueue form JavaScript and styles
 add_action('wp_enqueue_scripts', 'verso_enqueue_scripts');
 
