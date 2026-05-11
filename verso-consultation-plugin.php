@@ -388,7 +388,7 @@ function verso_store_consultation_in_db(
 function verso_build_confirmation_text($owner_prenom, $owner_nom, $animal_nom, $animal_espece, $uuid) {
     return "Merci {$owner_prenom} {$owner_nom},\n\n" .
            "Votre demande de consultation pour {$animal_nom} ({$animal_espece}) a bien été reçue par notre équipe Verso Vet.\n\n" .
-           "Nous examinerons votre dossier et vous contacterons dans les meilleurs délais (généralement sous 24 à 48 heures).\n\n" .
+           "Nos vétérinaires examineront votre dossier et vous contacterons dans les meilleurs délais (généralement sous 24 à 48 heures).\n\n" .
            "Numéro de référence : {$uuid}\n\n" .
            "Cordialement,\n" .
            "L'équipe Verso Vet\n" .
@@ -406,7 +406,7 @@ function verso_send_confirmation_emails($owner_nom, $owner_prenom, $owner_email,
     $owner_subject = "[Verso Vet] Confirmation de votre demande de consultation — Réf. {$uuid}";
     $owner_text = "Bonjour {$owner_prenom} {$owner_nom},\n\n" .
                   "Merci d'avoir soumis une demande de consultation pour {$animal_nom}.\n\n" .
-                  "Nous avons bien reçu votre dossier et nos experts l'examineront attentivement. " .
+                  "Nous avons bien reçu votre dossier et nos vétérinaires l'examineront attentivement. " .
                   "Nous vous contacterons dans les meilleurs délais pour discuter des prochaines étapes et du suivi de votre animal.\n\n" .
                   "Votre numéro de référence est : {$uuid}\n" .
                   "Veuillez le conserver pour toute correspondance future.\n\n" .
@@ -641,6 +641,7 @@ function verso_create_consultation_page() {
       <option value="">-- Sélectionner --</option>
       <option value="Chien">Chien</option>
       <option value="Chat">Chat</option>
+      <option value="Cheval">Cheval</option>
       <option value="Oiseau">Oiseau</option>
       <option value="Lapin">Lapin</option>
       <option value="Autre">Autre</option>
