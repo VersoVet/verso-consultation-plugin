@@ -544,7 +544,7 @@ function verso_create_consultation_page() {
     global $wpdb;
 
     // Check if page exists
-    $page = $wpdb->get_row("SELECT ID FROM {$wpdb->posts} WHERE post_name='demande-de-consultation' AND post_type='page' LIMIT 1");
+    $page = $wpdb->get_row("SELECT ID FROM {$wpdb->posts} WHERE post_name='consultation' AND post_type='page' LIMIT 1");
 
     // Divi Builder page structure (native format, no theme_builder_area)
     // Pattern: use proper Divi 4.27.2 shortcodes compatible with Visual Builder
@@ -722,7 +722,7 @@ EOT;
     } else {
         $page_id = wp_insert_post([
             'post_title'   => 'Demande de Consultation',
-            'post_name'    => 'demande-de-consultation',
+            'post_name'    => 'consultation',
             'post_content' => $form_html,
             'post_status'  => 'publish',
             'post_type'    => 'page',
@@ -805,7 +805,7 @@ add_action('wp_enqueue_scripts', 'verso_enqueue_scripts');
 
 function verso_enqueue_scripts() {
     // Only enqueue on the consultation page
-    if (!is_page('demande-de-consultation') && !is_page('demande-consultation')) {
+    if (!is_page('consultation') && !is_page('demande-consultation')) {
         return;
     }
 
